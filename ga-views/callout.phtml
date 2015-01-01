@@ -1,0 +1,15 @@
+<?php
+/**
+ * Render an info prompt page.
+ * Three variables must be set:
+ * $type: one of {'default, 'info', 'success', 'warning', 'danger'}
+ * $title: title of the callout page.
+ * $content: description of the callout page. HTML enabled.
+ */
+?>
+<div class="container-fluid">
+	<p class="notice bg-<?php echo $type?>">
+		<strong><?php echo $title?></strong>
+		<?php echo $content?>
+	</p>
+</div>

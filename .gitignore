@@ -1,5 +1,7 @@
 # Project configuration file
 *.conf
+*.db
+tmp/
 
 # Created by https://www.gitignore.io
 

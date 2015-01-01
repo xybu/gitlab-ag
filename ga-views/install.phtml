@@ -1,0 +1,96 @@
+	<ol class="breadcrumb">
+  		<li><a href="#">Home</a></li>
+		<li class="active">Install</li>
+	</ol>
+	
+	<div class="container-fluid">
+	
+		<p class="notice bg-warning">Carefully fill in ALL fields and <strong>RECORD ALL PASSWORDS</strong>. The validity of form data is NOT checked, and passwords will be one-way encrypted.</p>
+		<p class="notice bg-danger">You should ALWAYS use the installation guide to generate <code>ga-data/ga-config.php</code> rather than modifying the file by hand, which <em>immediately</em> voids the encryptions and corrupts the system. To re-run the installation guide, move or delete <code>ga-config.php</code>.</p>
+	
+		<form class="form-horizontal" method="post" action="/">
+			<div class="form-group">
+				<label for="inputAppAbsPath" class="col-sm-2 control-label">App absolute path</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="inputAppAbsPath" name="APP_ABS_PATH" placeholder="<?php echo getcwd()?>" value="<?php echo getcwd()?>" required="required">
+					<span class="help-block">The absolute path to the application directory.</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="inputAppUrl" class="col-sm-2 control-label">App web url</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="inputAppUrl" name="APP_URL" placeholder="http://<?php echo $_SERVER['HTTP_HOST'] . ':' . $_SERVER['SERVER_PORT'] ?>" value="http://<?php echo $_SERVER['HTTP_HOST'] . ':' . $_SERVER['SERVER_PORT'] ?>" required="required">
+					<span class="help-block">The URL to browse the application.</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="inputAppPassword" class="col-sm-2 control-label">App root password</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="inputAppPassword" name="APP_ROOT_PASS" placeholder="<?php echo $rand_password?>" value="<?php echo $rand_password?>" required="required">
+					<span class="help-block">The root password for gitlab-ag. It will be encrypted before saving to <code>ga-config.php</code></span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="inputAppApiAccessToken" class="col-sm-2 control-label">App API access token</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="inputAppApiAccessToken" name="APP_API_TOKEN" placeholder="<?php echo $rand_access_token?>" value="<?php echo $rand_access_token?>" required="required">
+					<span class="help-block">The password for cooperative components (e.g., GitLab and AutoGrader daemon) to access gitlab-ag API.</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="inputAppSqliteFilename" class="col-sm-2 control-label">App database filename</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="inputAppSqliteFilename" name="APP_SQLITE_FILENAME" placeholder="gitlab-ag.db" value="gitlab-ag.db" required="required">
+					<span class="help-block">The file name of SQLite database for gitlab-ag.</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="inputAppArchivePath" class="col-sm-2 control-label">App archive path</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="inputAppArchivePath" name="APP_ARCHIVE_PATH" required="required">
+					<span class="help-block">An absolute path to a dir that will be used to store AutoGrader archives.</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="inputAppTempPath" class="col-sm-2 control-label">App temp path</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="inputAppTempPath" name="APP_TEMP_PATH" required="required" value="/tmp/ag">
+					<span class="help-block">An absolute path to a dir that will be used when AutoGrader does temporary work.</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="inputGitLabUrl" class="col-sm-2 control-label">GitLab url</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="inputGitLabUrl" name="GITLAB_URL" placeholder="http://your_gitlab_web_url:port" required="required">
+					<span class="help-block">The HTTP URL to your GitLab instance.</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="inputGitLabAdminUsername" class="col-sm-2 control-label">GitLab admin username</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="inputGitLabAdminUsername" name="GITLAB_ADMIN_USER" placeholder="root" required="required">
+					<span class="help-block">Username of your GitLab instance admin account.</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="inputGitLabAdminPassword" class="col-sm-2 control-label">GitLab admin password</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="inputGitLabAdminPassword" name="GITLAB_ADMIN_PASS" placeholder="5iveL!fe" required="required">
+					<span class="help-block">Password of your GitLab instance admin account.</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="inputGitLabPrivateToken" class="col-sm-2 control-label">GitLab private token</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="inputGitLabPrivateToken" name="GITLAB_PRIVATE_TOKEN" required="required">
+					<span class="help-block">The private token your GitLab admin has for accessing GitLab API. This string can be found by logging in to your GitLab with you admin account, and go to <code>Account settings</code> tab in <code>Profile</code>.</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-offset-2 col-sm-10">
+					<button type="submit" class="btn btn-success">Save all settings</button>
+				</div>
+			</div>
+		</form>
+	</div>
+	

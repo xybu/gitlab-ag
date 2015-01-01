@@ -1,0 +1,18 @@
+		</article>
+		<footer>
+			<div class="container">
+				<p class="text-muted pull-left">
+					<a href="http://github.com/xybu/gitlab-ag" target="_blank"><strong>gitlab-ag</strong></a><br />
+					GitLab tailored for automated grading
+				</p>
+				<p class="text-muted pull-right">
+					Peak memory usage: <em><?php echo (memory_get_peak_usage(false)/1024) ?></em> KiB. <br />
+					Execution time: <em><?php echo round(microtime() - $GLOBALS['START_TIME'], 4)?></em> ms.
+				</p>
+			</div>
+		</footer>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/js/bootstrap.min.js"></script>
+		<script src="/ga-assets/ie10-viewport_fix.js"></script>
+	</body>
+</html>

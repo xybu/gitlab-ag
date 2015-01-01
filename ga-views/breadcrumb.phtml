@@ -1,0 +1,21 @@
+<?php
+/**
+ * Print page breadcrumb.
+ * Requires variable $breadcrumb to be set, and it is assumed to be an array of structure
+ * array('href' => YOUR_URL, 'active' => true, 'name' => 'ITEM_NAME').
+ * YOUR_URL must NOT contain unescaped double quote chars, but can be NULL or empty string.
+ * All keys above must exist. No error checking.
+ */
+ 
+if (isset($breadcrumb)) {
+	echo '<ol class="breadcrumb">';
+	foreach($breadcrumb as $row) {
+		$str = '<li' . ($row['active'] ? ' class="active">' : '>');
+		if (!empty($row['href'])) 
+			$str .= '<a href="' . $row['href'] . '">' . $row['name'] . '</a>';
+		else $str .= $row['name'];
+		$str .= '</li>';
+		echo $str;
+	}
+	echo '</ol>';
+}
