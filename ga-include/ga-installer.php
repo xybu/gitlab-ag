@@ -80,6 +80,10 @@ class Installer extends Base {
 				}
 				if (false === file_put_contents($path, $config_file_data, LOCK_EX))
 					throw new Exception("Failed to write to <code>" . $path . "</code>.");
+				if (false == chmod($path, 0700)) {
+					unlink($path);
+					throw new Exception("Failed to chmod of <code>" . $path . "</code> to <code>0700</code>.");
+				}
 				if (false == touch($path, $timestamp)) {
 					unlink($path);
 					throw new Exception("Failed to change mtime of <code>" . $path . "</code>");
@@ -102,7 +106,10 @@ class Installer extends Base {
 			'rand_password' => $this->GetRandStr(10),
 			'rand_access_token' => $this->GetRandStr(32),
 		));
-		$this->view->ShowHtmlFooter();
+		$this->view->ShowHtmlFooter(array(
+			//'//cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/sha256-min.js',
+			'/ga-assets/installer.js'
+		));
 	}
 	
 }

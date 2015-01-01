@@ -57,7 +57,11 @@ class View {
 		require __DIR__ . '/../ga-views/' . $template_name;
 	}
 	
-	public function ShowHtmlFooter() {
+	/**
+	 * @param $script_files: an array of string URIs of javascript files.
+	 *                       If present each will append a <script> tag.
+	 */
+	public function ShowHtmlFooter($script_files = null) {
 		require __DIR__ . '/../ga-views/footer.phtml';
 	}
 	

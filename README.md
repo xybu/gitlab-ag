@@ -20,6 +20,9 @@ gitlab-ag extends GitLab in the following ways:
 
 All those features better GitLab for education use.
 
+Besides, gitlab-ag is built on top of PHP with no framework involved. This makes the system
+fast and less resource-intensive.
+
 ## Installation
 
 ### Setup the gitlab-ag
@@ -41,12 +44,20 @@ wget https://codeload.github.com/xybu/gitlab-ag/zip/master
 unzip master.zip
 ```
 
+Open `ga-include/ga-session.php` and change the constant `SESSION_SALT` to a complex string.
+
 Enter `gitlab-ag` directory and on your web server, create a new website whose root points 
 here. Fore security, besure to have this virtual website deny accesses to anywhere except 
 for `ga-assets` and `index.php`.
 
 Make sure your web worker user (for example, `www-data` is the default username for Nginx 
-workers) has `RWX` permission on `gitlab-ag` directory and `ga-data` subdirectory.
+workers) has `RWX` permission on `gitlab-ag` directory and `ga-data` subdirectory, and make sure
+no other user access `ga-data` (probably set the owner and group of `ga-data` to `www-data` and 
+permission bits to `0700`).
+
+Make sure the access log of your web server is not readable by low-privilege users. If someone can 
+get alive session data from disk and find the user-agent string associated with that session in server
+access log, security may be compromised.
 
 Now open the previously created virtual website in your browser, and follow the installation 
 guides. Be sure to take note of "App root password" and "App API access token" fields before 
@@ -57,3 +68,12 @@ immediately.
 ### Setup GitLab
 
 Here we assume GitLab has been installed. Here is what's next.
+
+## Security Concerns
+
+Read the comments at the beginning of the following files:
+
+ * `ga-include/ga-installer.php`
+ * `ga-include/ga-session.php`
+
+

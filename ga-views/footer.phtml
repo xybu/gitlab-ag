@@ -13,6 +13,12 @@
 		</footer>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
 		<script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.1/js/bootstrap.min.js"></script>
+		<script src="//cdnjs.cloudflare.com/ajax/libs/jquery.form/3.51/jquery.form.min.js"></script>
 		<script src="/ga-assets/ie10-viewport_fix.js"></script>
+<?php
+if ($script_files != null) {
+	foreach ($script_files as $f) 
+		echo '<script src="' . $f . '"></script>' . PHP_EOL;
+}?>
 	</body>
 </html>

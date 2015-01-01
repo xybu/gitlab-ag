@@ -1,0 +1,22 @@
+	<ol class="breadcrumb">
+  		<li><a href="#">Home</a></li>
+		<li class="active">Sign In</li>
+	</ol>
+	
+	<div class="container-fluid">
+		<form id="form-sign_in" class="form-horizontal" method="post" action="/">
+			<input type="hidden" name="action" value="sign_in" />
+			<div class="form-group" id="passwordFieldWrapper">
+				<label for="inputAppPassword" class="col-sm-2 control-label">App root password</label>
+				<div class="col-sm-10">
+					<input type="password" class="form-control" id="inputAppPassword" name="password" required="required">
+					<span id="inputAppPasswordHelp" class="help-block invisible"></span>
+				</div>
+			</div>
+			<div class="form-group">
+				<div class="col-sm-offset-2 col-sm-10">
+					<button id="signInButton" type="submit" class="btn btn-success">Sign In</button>
+				</div>
+			</div>
+		</form>
+	</div>
