@@ -2,6 +2,7 @@
 *.conf
 *.db
 tmp/
+ga-data/
 
 # Created by https://www.gitignore.io
 

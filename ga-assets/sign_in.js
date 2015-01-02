@@ -10,7 +10,7 @@ $(document).ready(function() {
 		beforeSubmit: function(formData, jqForm, options) {
 		},
 		success: function(response, statusText, xhr, $form) {
-			window.location.assign('/?action=admincp'); 
+			window.location.assign('admincp.php'); 
 		},
 		error: function(response, status, error, $form) {
 			if (response.status == 400) {

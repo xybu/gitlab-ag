@@ -58,6 +58,7 @@ class Installer extends Base {
 		$path = getcwd() . "/ga-data/ga-config.php";
 		if (file_exists($path)) {
 			// the config file already exists, must refuse the request
+			// actually this check is redundant
 			$this->view->ShowCallout('danger', 'Error', '<code>ga-data/ga-config.php</code> already exists. Delete it to unlock installer.');
 		} else {
 			// TODO: make sure all $val is quote escaped.
@@ -65,19 +66,26 @@ class Installer extends Base {
 				$timestamp = time();
 				$config_file_data = "<?php\n/**\n * Generated configuration file\n * DO NOT MODIFY.\n */\n\n";
 				$root_password_raw = $_POST['APP_ROOT_PASS'];
-				$root_password_sha = $this->SHA_Encrypt($root_password_raw);
+				$root_password_sha = $this->SHA_Encrypt(base64_encode($root_password_raw));
 				$root_password_hash = password_hash($root_password_sha, PASSWORD_DEFAULT);
+				$api_token_raw = $_POST['APP_API_TOKEN'];
+				$api_token_sha = $this->SHA_Encrypt(base64_encode($api_token_raw));
+				$api_token_hash = password_hash($api_token_sha, PASSWORD_DEFAULT);
 				foreach ($_POST as $key => $val) {
 					if (empty($val)) throw new InvalidArgumentException($key . ' is unset.');
 					if ($key == 'APP_ROOT_PASS') {
 						$val = $root_password_hash;
+					} else if ($key == 'APP_API_TOKEN') {
+						$val = $api_token_hash;
+					} else if ($key == 'GITLAB_PRIVATE_TOKEN') {
+						$val = $this->AES_Encrypt($val, $$api_token_sha . $timestamp);
 					}
-					$test = substr($key, strlen($key) - 5);
-					if ($test == '_PASS' || $test == 'TOKEN') {
+					if (substr($key, strlen($key) - 5) == '_PASS') {
 						$val = $this->AES_Encrypt($val, $root_password_sha . $timestamp);
 					}
-					$config_file_data .= "define('". $key ."', '" . $val . "');\n";
+					$config_file_data .= "define('". $key ."', '" . $this->AES_Encrypt($api_token_raw, $root_password_sha . $timestamp) . "');\n";
 				}
+				$config_file_data .= "define('GITLAB_PRIVATE_TOKEN_U', '" .  . "');\n";
 				if (false === file_put_contents($path, $config_file_data, LOCK_EX))
 					throw new Exception("Failed to write to <code>" . $path . "</code>.");
 				if (false == chmod($path, 0700)) {
