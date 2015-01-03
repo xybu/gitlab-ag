@@ -17,7 +17,7 @@ class View {
 	/**
 	 * Render the HTML header.
 	 */
-	public function ShowHtmlHeader($page_title) {
+	public function ShowHtmlHeader($page_title, $is_user = false) {
 		require __DIR__ . '/../ga-views/header.phtml';
 	}
 	

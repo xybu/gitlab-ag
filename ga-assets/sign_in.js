@@ -9,15 +9,14 @@ $(document).ready(function() {
 		},
 		beforeSubmit: function(formData, jqForm, options) {
 		},
-		success: function(response, statusText, xhr, $form) {
-			window.location.assign('admincp.php'); 
-		},
-		error: function(response, status, error, $form) {
-			if (response.status == 400) {
+		complete: function(xhr, status) {
+			if (xhr.status == 400) {
 				$('#passwordFieldWrapper').addClass('has-error');
-				$('#inputAppPasswordHelp').text(response.responseJSON.desc);
+				$('#inputAppPasswordHelp').text(xhr.responseJSON.desc);
 				$('#inputAppPasswordHelp').removeClass('invisible');
 				$('#signInButton').attr('disabled');
+			} else if (xhr.status == 200) {
+				window.location.assign('admincp.php'); 
 			} else {
 				$('#inputAppPasswordHelp').text(response.statusText);
 			}

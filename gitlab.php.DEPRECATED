@@ -1,7 +1,6 @@
 <?php
 /**
- * Admin panel router deals with two types of requests:
- * panel rendering (GET) and action routing (otherwise).
+ * Routes requests that need to manipulate GitLab instance from gitlab-ag.
  * 
  * @author Xiangyu Bu <xybu92@live.com>
  */
@@ -16,7 +15,11 @@ if (!file_exists(getcwd() . "/ga-data/ga-config.php"))
 }
 
 require_once 'ga-data/ga-config.php';
-require_once 'ga-include/ga-admincp.php';
+require_once 'ga-include/ga-gitlab.php';
 
-// pass control to admincp controller.
-new ControlPanel();
+(new GitLab_API())->HandleRequest();
+
+var_dump($_POST);
+
+$csv = array_map('str_getcsv', explode("\n", $_POST['CsvData']));
+var_dump($csv);

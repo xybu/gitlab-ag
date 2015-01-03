@@ -8,8 +8,17 @@
  */
 ?>
 <div class="container-fluid">
-	<p class="notice bg-<?php echo $type?>">
-		<strong><?php echo $title?></strong>
+	<div class="alert alert-<?php echo $type?>" role="alert">
+<?php
+if ($type == 'success') {
+	echo '<span class="glyphicon glyphicon-ok-sign" aria-hidden="true"></span> ';
+} else if ($type == 'info') {
+	echo '<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> ';
+} else {
+	echo '<span class="glyphicon glyphicon-exclamation-sign" aria-hidden="true"></span> ';
+}
+?>
+		<strong><?php echo $title?>.</strong>
 		<?php echo $content?>
-	</p>
+	</div>
 </div>

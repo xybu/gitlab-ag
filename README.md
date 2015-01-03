@@ -11,7 +11,7 @@ in GitLab.
 
 gitlab-ag extends GitLab in the following ways:
 
- * You can create new users in batch.
+ * You can create / delete users in batch.
  * You can create new repositories for target users in batch.
  * `gitlab-ag` provides system hooks to monitor GitLab user activity, and alerts you
    if a user's activity matches any preset rule.

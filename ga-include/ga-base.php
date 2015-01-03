@@ -10,6 +10,8 @@ abstract class Base {
 	
 	const CHAR_SET = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
 	
+	protected $session = null;
+	
 	/**
 	* Return the HTTP method string.
 	* @returns One of {'get', 'post', 'head', 'put', etc.}
@@ -29,6 +31,15 @@ abstract class Base {
 	
 	public function IsHttpPost() {
 		return $this->GetHttpMethod() == 'post';
+	}
+	
+	/**
+	 * If the user is not signed in, the request will be killed.
+	 */
+	public function EnsureSignedInRequest() {
+		require_once 'ga-session.php';
+		$this->session = new Session();
+		$this->session->SignInUser();
 	}
 	
 	/**

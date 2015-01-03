@@ -1,0 +1,83 @@
+	<ol class="breadcrumb">
+  		<li><a href="<?php echo APP_URL?>">Home</a></li>
+		<li><a href="admincp.php">Control Panel</a></li>
+		<li class="active">Status</li>
+	</ol>
+	
+	<div role="tabpanel" class="tab-content">
+		<section class="container-fluid tab-pane active" role="tabpanel" id="status">
+			<div class="page-header"><h2>GitLab Instance</h2></div>
+			<form class="form-horizontal">
+				<div class="form-group">
+					<label class="col-sm-2 control-label">GitLab Url</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="GitLabUrl" value="<?php echo GITLAB_URL?>">
+						<span class="help-block"><a href="<?php echo GITLAB_URL?>" target="_blank">Open in new window</a></span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">GitLab Private Token</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="GitLabPrivateToken" value="<?php echo $GitLab_PrivateToken?>">
+					</div>
+				</div>
+			</form>
+		</section>
+		<section class="container-fluid tab-pane" role="tabpanel" id="new-users">
+			<div class="page-header"><h2>Import Users</h2></div>
+			<form id="formNewUser" class="form-horizontal">
+				<div class="alert alert-info">
+					<span class="glyphicon glyphicon-info-sign" aria-hidden="true"></span> 
+					Passwords will be randomly generated. After users are created, make an announcement to the users asking them to use &quot;forget password&quot; to reset their passwords. By doing so a &quot;reset password&quot; email will be sent to their associated email addresses.
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">CSV data</label>
+					<div class="col-sm-10">
+						<textarea class="form-control" id="NewUserCsvBlock" name="CsvData" rows="4"></textarea>
+						<span class="help-block">Copy and paste the roster here. The first line should be the table header. The following columns are <strong>required</strong> to match the required GitLab user fields: <code>User ID</code> for <em>username</em>, <code>NAME</code> for <em>name</em>, <code>EMAIL</code> for <em>email</em>. If there is a <code>ID</code> column, it will be mapped to <code>extern_uid</code> field. Roster csv from <tt>Sungard Higher Education</tt> system can be pasted directly.</span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="inputProjectsLimit" class="col-sm-2 control-label">Project limit</label>
+					<div class="col-sm-10">
+						<input type="number" class="form-control" id="inputProjectsLimit" name="ProjectsLimit" placeholder="16" value="16" required="required">
+						<span class="help-block">The number of projects each user can have. A non-positive number means no limit.</span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Options</label>
+					<div class="col-sm-10">
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" id="Opt_CanCreateGroup" value="true"> Users are allowed to create their groups.
+							</label>
+						</div>
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" id="Opt_IsAdmin" value="true"> Users created will be GitLab admins.
+							</label>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-2 col-sm-10">
+						<button id="BtnStartCreateNewUsers" class="btn btn-default">Start</button>
+					</div>
+				</div>
+			</form>
+			<div id="CreateNewUsersResult" class="container-fluid hide"></div>
+		</section>
+		<section class="container-fluid tab-pane" role="tabpanel" id="edit-users">
+			<div class="page-header"><h2>Edit Users</h2></div>
+		</section>
+		<section class="container-fluid tab-pane" role="tabpanel" id="new-repo">
+			<div class="page-header"><h2>New Repositories</h2></div>
+		</section>
+		<section class="container-fluid tab-pane" role="tabpanel" id="edit-repo">
+			<div class="page-header"><h2>Edit Repositories</h2></div>
+		</section>
+		<section class="container-fluid tab-pane" role="tabpanel" id="log">
+			<div class="page-header"><h2>Log</h2></div>
+		</section>
+	</div>
+	

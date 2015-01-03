@@ -5,8 +5,8 @@
 	
 	<div class="container-fluid">
 	
-		<p class="notice bg-warning">Carefully fill in ALL fields and <strong>RECORD ALL PASSWORDS</strong>. The validity of form data is NOT checked, and passwords will be one-way encrypted.</p>
-		<p class="notice bg-danger">You should ALWAYS use the installation guide to generate <code>ga-data/ga-config.php</code> rather than modifying the file by hand, which <em>immediately</em> voids the encryptions and corrupts the system. To re-run the installation guide, move or delete <code>ga-config.php</code>.</p>
+		<p class="well bg-warning">Carefully fill in ALL fields and <strong>RECORD ALL PASSWORDS</strong>. The validity of form data is NOT checked, and passwords will be one-way encrypted.</p>
+		<p class="well bg-danger">You should ALWAYS use the installation guide to generate <code>ga-data/ga-config.php</code> rather than modifying the file by hand, which <em>immediately</em> voids the encryptions and corrupts the system. To re-run the installation guide, move or delete <code>ga-config.php</code>.</p>
 	
 		<form class="form-horizontal" method="post" action="/">
 			<div class="form-group">
@@ -54,7 +54,7 @@
 			<div class="form-group">
 				<label for="inputAppArchivePath" class="col-sm-2 control-label">App archive path</label>
 				<div class="col-sm-10">
-					<input type="text" class="form-control" id="inputAppArchivePath" name="APP_ARCHIVE_PATH" required="required">
+					<input type="text" class="form-control" id="inputAppArchivePath" name="APP_ARCHIVE_PATH" required="required" placeholder="<?php echo getcwd() . '/ga-data/archive' ?>">
 					<span class="help-block">An absolute path to a dir that will be used to store AutoGrader archives.</span>
 				</div>
 			</div>

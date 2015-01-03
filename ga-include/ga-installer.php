@@ -78,14 +78,14 @@ class Installer extends Base {
 					} else if ($key == 'APP_API_TOKEN') {
 						$val = $api_token_hash;
 					} else if ($key == 'GITLAB_PRIVATE_TOKEN') {
-						$val = $this->AES_Encrypt($val, $$api_token_sha . $timestamp);
+						$val = $this->AES_Encrypt($val, $api_token_sha . $timestamp);
 					}
-					if (substr($key, strlen($key) - 5) == '_PASS') {
+					if (substr($key, strlen($key) - 4) == 'PASS') {
 						$val = $this->AES_Encrypt($val, $root_password_sha . $timestamp);
 					}
-					$config_file_data .= "define('". $key ."', '" . $this->AES_Encrypt($api_token_raw, $root_password_sha . $timestamp) . "');\n";
+					$config_file_data .= "define('". $key ."', '" . $val . "');\n";
 				}
-				$config_file_data .= "define('GITLAB_PRIVATE_TOKEN_U', '" .  . "');\n";
+				$config_file_data .= "define('GITLAB_PRIVATE_TOKEN_U', '" . $this->AES_Encrypt($_POST['GITLAB_PRIVATE_TOKEN'], $root_password_sha . $timestamp) . "');\n";
 				if (false === file_put_contents($path, $config_file_data, LOCK_EX))
 					throw new Exception("Failed to write to <code>" . $path . "</code>.");
 				if (false == chmod($path, 0700)) {

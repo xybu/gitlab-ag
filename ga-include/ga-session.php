@@ -26,6 +26,8 @@ require_once 'ga-base.php';
 class Session extends Base {
 	
 	const SESSION_SALT = 'DEFAULT_SALT';
+	const MAX_ATTEMPT_COUNT = 5;
+	const MAX_ATTEMPT_INTERVAL = 30; // in minutes
 	
 	// Knowledge key is actually the SHA-256 hash of the root password.
 	public $KnowledgeKey = null;
@@ -34,11 +36,11 @@ class Session extends Base {
 	public $PossessionKey = null;
 	
 	public function __construct() {
+		session_start();
 		$this->LoadPossessionKey();
 	}
 	
 	public function __destruct() {
-		
 	}
 	
 	public function IsSignedIn() {
@@ -58,19 +60,23 @@ class Session extends Base {
 	 * If the user cannot be signed in, terminate the session.
 	 */
 	public function SignInUser() {
-		session_start();
-		
 		if (isset($_SESSION['SessionKey'])) {
 			$this->KnowledgeKey = $this->AES_Decrypt($_SESSION['SessionKey'], base64_encode($_SERVER['HTTP_USER_AGENT']) . self::SESSION_SALT);
 		}
 		if ($this->KnowledgeKey == null) {
 			if ($this->IsHttpGet()) {
+				// for HTTP GET, redirect user to homepage
 				header('Location: ' . APP_URL);
 				exit();
 			} else {
+				// for HTTP POST, return JSON error
 				$session->JSON_OutputError('unauthorized', 'You must sign in the perform the operation.', '401 Unauthorized');
 			}
 		}
+	}
+	
+	public function SignOutUser() {
+		unset($_SESSION['SessionKey']);
 	}
 	
 	/**
@@ -81,24 +87,46 @@ class Session extends Base {
 		throw new Exception("Unimplemented");
 	}
 	
+	public function IncrementFailureCounter() {
+		if (!isset($_SESSION['FailCount']))
+			$_SESSION['FailCount'] = 0;
+		$_SESSION['FailCount'] += 1;
+		$_SESSION['FailTimestamp'] = time();
+	}
+	
+	public function VoidFailureCounter() {
+		unset($_SESSION['FailCount']);
+		unset($_SESSION['FailTimestamp']);
+	}
+	
 	public function TestSignIn() {
 		// if (!$this->IsHttpPost()) return false;
 		// if ($_POST['action'] != 'sign_in') return false;
-		if (!array_key_exists('password', $_POST) || empty($_POST['password'])) return false;
+		if (isset($_SESSION['FailTimestamp']) && time() - $_SESSION['FailTimestamp'] > self::MAX_ATTEMPT_INTERVAL * 60000)
+			$this->VoidFailureCounter();
+		
+		if (isset($_SESSION['FailCount']) && $_SESSION['FailCount'] >= self::MAX_ATTEMPT_COUNT ||
+		    !array_key_exists('password', $_POST) || empty($_POST['password'])) {
+			$this->IncrementFailureCounter();
+			return false;
+		}
 		
 		$pass_try = $_POST['password'];
-		$pass_try_sha = $this->SHA_Encrypt($pass_try);
+		$pass_try_sha = $this->SHA_Encrypt(base64_encode($pass_try));
 		$pass_verif = $this->AES_Decrypt(APP_ROOT_PASS, $pass_try_sha . $this->PossessionKey);
-		if ($pass_verif == null) return false;
+		if ($pass_verif == null || !password_verify($pass_try_sha, $pass_verif)) {
+			$this->IncrementFailureCounter();
+			return false;
+		}
 		
-		// TODO: is this step simply unnecessary and useless?
-		// If not, does success of decryption guarantees the data to be intact?
-		if (!password_verify($pass_try, $pass_verif)) return false;
-		
-		session_start();
 		$this->KnowledgeKey = $pass_try_sha;
 		$_SESSION['SessionKey'] = $this->AES_Encrypt($pass_try_sha, base64_encode($_SERVER['HTTP_USER_AGENT']) . self::SESSION_SALT);
+		$this->VoidFailureCounter();
 		return true;
+	}
+	
+	public function GetSessionKey() {
+		return $this->AES_Decrypt($_SESSION['SessionKey'], base64_encode($_SERVER['HTTP_USER_AGENT']) . self::SESSION_SALT);
 	}
 	
 	public function ShowSignInPage() {
@@ -111,5 +139,4 @@ class Session extends Base {
 			'/ga-assets/sign_in.js'
 		));
 	}
-	
 }
