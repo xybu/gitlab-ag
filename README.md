@@ -11,7 +11,7 @@ in GitLab.
 
 gitlab-ag extends GitLab in the following ways:
 
- * You can create / delete users in batch.
+ * You can create (import) / delete users in batch.
  * You can create new repositories for target users in batch.
  * `gitlab-ag` provides system hooks to monitor GitLab user activity, and alerts you
    if a user's activity matches any preset rule.
@@ -76,4 +76,22 @@ Read the comments at the beginning of the following files:
  * `ga-include/ga-installer.php`
  * `ga-include/ga-session.php`
 
+## Usage
 
+The layout of gitlab-control panel consists of four parts: navbar (the bar at the top showing menus and sign out link), breadcrumb (the bar below navbar that shows your current position), content (the part under breadcrumb and above footer), and footer (the bottom bar shows copyright info and performance counter).
+
+### First Use
+
+
+
+### Import Users
+
+To import users from a CSV file, first sign in to gitlab-ag control panel, then in the navbar menu, choose "Users" - "Import Users". In the content panel will show the control for pasting cSV data.
+
+The first line of the CSV data must be the header of columns. Three columns are required: `User ID` (matching `username` field on GitLab), `NAME` (matching `name`), and `EMAIL` (matching `email`). Besides, `ID` column, if exists, will be matched to `extern_uid` field on GitLab.
+
+The password for each user will be generated randomly. You will need to make an announcement to the people to ask them reset their passwords on GitLab using "forget password" link on GitLab sign-in page.
+
+Besides, you can set the maximum number of projects a user can have to prevent the users from creating projects that are unrelated to your GitLab purpose. Non-positive number means no limit.
+
+There are two additional options, one for allowing users to create their own groups, and one for importing the users as GitLab administrators. Use with caution.
