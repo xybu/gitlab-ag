@@ -4,6 +4,8 @@
 		<li class="active">Status</li>
 	</ol>
 	
+	<div id="global-notifications" class="container-fluid hide"></div>
+	
 	<div role="tabpanel" class="tab-content">
 		<section class="container-fluid tab-pane active" role="tabpanel" id="status">
 			<div class="page-header"><h2>GitLab Instance</h2></div>
@@ -21,7 +23,14 @@
 						<input type="text" class="form-control" id="GitLabPrivateToken" value="<?php echo $GitLab_PrivateToken?>">
 					</div>
 				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">GitLab Root User</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="GitLabRootUsername" value="<?php echo GITLAB_ADMIN_USER ?>">
+					</div>
+				</div>
 			</form>
+			<div id="StatusResult" class="container-fluid hide"></div>
 		</section>
 		<section class="container-fluid tab-pane" role="tabpanel" id="new-users">
 			<div class="page-header"><h2>Import Users</h2></div>
@@ -67,8 +76,45 @@
 			</form>
 			<div id="CreateNewUsersResult" class="container-fluid hide"></div>
 		</section>
-		<section class="container-fluid tab-pane" role="tabpanel" id="edit-users">
-			<div class="page-header"><h2>Edit Users</h2></div>
+		<section class="container-fluid tab-pane" role="tabpanel" id="delete-users">
+			<div class="page-header"><h2>Delete Users</h2></div>
+			<div class="alert alert-info">
+				<ul>
+					<li>gitlab-ag will NOT delete the root user.</li>
+					<li>GitLab API may not return all users due to pagination. You may need to repeat the operation multiple times to ensure the task is fully completed.</li>
+				</ul>
+			</div>
+			<form class="form-horizontal">
+				<div class="form-group">
+					<label for="inputUsernamePattern" class="col-sm-2 control-label">Username Pattern</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="inputUsernamePattern" value="*" required="required">
+						<span class="help-block">Support wildcard expression.</span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Options</label>
+					<div class="col-sm-10">
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" id="OptShowNormalUsers" value="true" checked="true"> Match ordinary users.
+							</label>
+						</div>
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" id="OptShowAdmin" value="true"> Match admin users.
+							</label>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-2 col-sm-10">
+						<button id="BtnListMatchedUsers" class="btn btn-default">List matched Users</button>
+						<button id="BtnDeleteMatchedUsers" class="btn btn-warning hide">Delete Listed Users</button>
+					</div>
+				</div>
+			</form>
+			<div id="DeleteUserResult"></div>
 		</section>
 		<section class="container-fluid tab-pane" role="tabpanel" id="new-repo">
 			<div class="page-header"><h2>New Repositories</h2></div>

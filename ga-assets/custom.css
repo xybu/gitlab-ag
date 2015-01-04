@@ -30,11 +30,15 @@ footer {
 	margin-right: auto;
 }
 
-/* Hacks */
-.breadcrumb {
-	margin-bottom: 0 !important;
-}
 .page-header {
 	margin: 10px 0 20px !important;
 	padding-bottom: 0 !important;
+}
+
+.page-header h2 {
+	margin-top: 0 !important;
+}
+
+.tab-pane > .page-header {
+	margin-top: 0 !important;
 }
