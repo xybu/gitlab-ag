@@ -9,7 +9,7 @@ require_once 'ga-base.php';
 
 class ControlPanel extends Base {
 	
-	public function __construct() {
+	function __construct() {
 		$this->EnsureSignedInRequest();
 		
 		if ($this->session->IsHttpGet()) {
@@ -18,14 +18,18 @@ class ControlPanel extends Base {
 				$this->ShowControlPanel();
 			} else {
 				$action = $_GET['action'];
-				if ($action == 'sign_out') {
-					$this->session->SignOutUser();
-					header('Location: ' . APP_URL);
-					exit();
-				} else if ($action == 'heartbeat') {
-					// heartbeating request
-					header('HTTP/1.1 200 OK');
-					exit();
+				switch ($action) {
+					case 'sign_out':
+						$this->session->SignOutUser();
+						header('Location: ' . APP_URL);
+						exit();
+					case 'heartbeat':
+						// heartbeating request
+						header('HTTP/1.1 200 OK');
+						exit();
+					case 'get_log':
+						$this->FetchLogs();
+						exit();
 				}
 			}
 		} else {
@@ -33,14 +37,36 @@ class ControlPanel extends Base {
 		}
 	}
 	
-	public function ShowControlPanel() {
+	function FetchLogs() {
+		require_once 'ga-logger.php';
+		
+		$max_id = intval($_GET['max_id']);
+		$count = intval($_GET['count']);
+		if ($count == 0) return;
+		$logger = new Logger();
+		$rows = $logger->GetLogs($max_id, $count);
+		if ($rows != false) {
+			foreach($rows as &$val) {
+				$val['log_detail'] = json_decode($val['log_detail'], true);
+				$val['http_request'] = json_decode($val['http_request'], true);
+				$val['http_post'] = json_decode($val['http_post'], true);
+				$val['http_get'] = json_decode($val['http_get'], true);
+			}
+			$this->JSON_OutputData($rows);
+		} else {
+			echo json_encode([]);
+		}
+	}
+	
+	function ShowControlPanel() {
 		require_once 'ga-view.php';
+		
 		$view = new View();
 		$view->ShowHtmlHeader('Control Panel', true);
 		$view->Render('admincp.phtml', array(
 			'GitLab_PrivateToken' => $this->AES_Decrypt(GITLAB_PRIVATE_TOKEN_U, $this->session->GetSessionKey() . $this->session->PosessionKey)
 		));
-		$view->ShowHtmlFooter(array('/ga-assets/admincp.js'));
+		$view->ShowHtmlFooter(['/ga-assets/admincp.js']);
 	}
 
 }

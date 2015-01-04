@@ -8,7 +8,6 @@
  */
 
 require_once 'ga-base.php';
-require_once 'ga-view.php';
 
 /**
  * Security Concerns
@@ -29,13 +28,10 @@ require_once 'ga-view.php';
  */
 class Installer extends Base {
 	
-	protected $view = null;
-	
 	/**
 	 * Construct the object and route to the correct path.
 	 */
-	public function __construct() {
-		$this->view = new View();
+	public function __construct() {		
 		if ($this->IsHttpGet()) {
 			$this->ShowWelcomeScreen();
 		} else {
@@ -50,16 +46,11 @@ class Installer extends Base {
 	}
 	
 	public function Install() {
-		$this->view->ShowHtmlHeader('Install gitlab-ag');
-		$this->view->ShowBreadcrumb(array(
-			array('href' => '/', 'name' => 'Home', 'active' => false),
-			array('href' => null, 'name' => 'Install', 'active' => true),
-		));
 		$path = getcwd() . "/ga-data/ga-config.php";
 		if (file_exists($path)) {
 			// the config file already exists, must refuse the request
 			// actually this check is redundant
-			$this->view->ShowCallout('danger', 'Error', '<code>ga-data/ga-config.php</code> already exists. Delete it to unlock installer.');
+			$this->JSON_OutputError('installer-locked', 'Install cannot proceed because <code>ga-data/ga-config.php</code> already exists. Delete it to unlock installer.', '403 Forbidden');
 		} else {
 			// TODO: make sure all $val is quote escaped.
 			try {
@@ -96,9 +87,9 @@ class Installer extends Base {
 					unlink($path);
 					throw new Exception("Failed to change mtime of <code>" . $path . "</code>");
 				}
-				$this->view->ShowCallout('success', 'Success', 'Installation is finished. Click <a href="/">here</a> to sign in.');
+				$this->JSON_OutputData(array('response' => 'success'));
 			} catch (Exception $e) {
-				$this->view->ShowCallout('danger', 'Error', $e->GetMessage());
+				$this->JSON_OutputError('Error', $e->GetMessage());
 			}
 		}
 		$this->view->ShowHtmlFooter();
@@ -109,12 +100,15 @@ class Installer extends Base {
 	 * HTTP GET installation request.
 	 */
 	public function ShowWelcomeScreen() {
-		$this->view->ShowHtmlHeader('Install gitlab-ag');
-		$this->view->Render('install.phtml', array(
+		require_once 'ga-view.php';
+		$view = new View();
+		$view->ShowHtmlHeader('Install gitlab-ag');
+		$view->Render('install.phtml', array(
 			'rand_password' => $this->GetRandStr(10),
 			'rand_access_token' => $this->GetRandStr(32),
+			'rand_hook_key' => $this->GetRandStr(32)
 		));
-		$this->view->ShowHtmlFooter(array(
+		$view->ShowHtmlFooter(array(
 			//'//cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/sha256-min.js',
 			'/ga-assets/installer.js'
 		));

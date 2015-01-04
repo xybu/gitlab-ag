@@ -46,9 +46,11 @@ unzip master.zip
 
 Open `ga-include/ga-session.php` and change the constant `SESSION_SALT` to a complex string.
 
-Enter `gitlab-ag` directory and on your web server, create a new website whose root points 
-here. Fore security, besure to have this virtual website deny accesses to anywhere except 
+Enter `gitlab-ag` directory and on your web server, create a new website whose root dir points 
+here. Fore security, be sure to have this virtual website deny accesses to anywhere except 
 for `ga-assets` and `index.php`.
+
+And then create another virtual site whose root dir points to `ga-hook`, making sure this site is only accessible by your GitLab system (NOT the users of your GitLab instance) using internal IP address and port.
 
 Make sure your web worker user (for example, `www-data` is the default username for Nginx 
 workers) has `RWX` permission on `gitlab-ag` directory and `ga-data` subdirectory, and make sure

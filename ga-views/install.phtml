@@ -8,7 +8,7 @@
 		<p class="well bg-warning">Carefully fill in ALL fields and <strong>RECORD ALL PASSWORDS</strong>. The validity of form data is NOT checked, and passwords will be one-way encrypted.</p>
 		<p class="well bg-danger">You should ALWAYS use the installation guide to generate <code>ga-data/ga-config.php</code> rather than modifying the file by hand, which <em>immediately</em> voids the encryptions and corrupts the system. To re-run the installation guide, move or delete <code>ga-config.php</code>.</p>
 	
-		<form class="form-horizontal" method="post" action="/">
+		<form id="FormInstaller" class="form-horizontal" method="post" action="/">
 			<div class="form-group">
 				<label for="inputAppAbsPath" class="col-sm-2 control-label">App absolute path</label>
 				<div class="col-sm-10">
@@ -19,8 +19,15 @@
 			<div class="form-group">
 				<label for="inputAppUrl" class="col-sm-2 control-label">App web url</label>
 				<div class="col-sm-10">
-					<input type="text" class="form-control" id="inputAppUrl" name="APP_URL" placeholder="http://<?php echo $_SERVER['HTTP_HOST'] . ':' . $_SERVER['SERVER_PORT'] ?>" value="http://<?php echo $_SERVER['HTTP_HOST'] . ':' . $_SERVER['SERVER_PORT'] ?>" required="required">
-					<span class="help-block">The URL to browse the application.</span>
+					<input type="text" class="form-control" id="inputAppUrl" name="APP_URL" placeholder="http://<?php echo $_SERVER['HTTP_HOST']?>" value="http://<?php echo $_SERVER['HTTP_HOST']?>" required="required">
+					<span class="help-block">The URL to browse the application. Humans (in contrast to servers) use this URL to open this website in their browsers.</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="inputAppHookUrl" class="col-sm-2 control-label">App hook url</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="inputAppHookUrl" name="APP_HOOK_URL" placeholder="http://127.0.0.1:8099" value="" required="required">
+					<span class="help-block">The IP and secret port for your GitLab site to access the gitlab-ag hook site (<code>ga-hook</code>). This site should be secured so that any access should be denied unless it is from GitLab site. The values should correspond to your virtual site settings.  </span>
 				</div>
 			</div>
 			<div class="form-group">
@@ -66,10 +73,10 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<label for="inputGitLabUrl" class="col-sm-2 control-label">GitLab url</label>
+				<label for="inputGitLabUrl" class="col-sm-2 control-label">GitLab web url</label>
 				<div class="col-sm-10">
 					<input type="text" class="form-control" id="inputGitLabUrl" name="GITLAB_URL" placeholder="http://your_gitlab_web_url:port" required="required">
-					<span class="help-block">The HTTP URL to your GitLab instance.</span>
+					<span class="help-block">The HTTP URL of your GitLab instance.</span>
 				</div>
 			</div>
 			<div class="form-group">
@@ -94,10 +101,19 @@
 				</div>
 			</div>
 			<div class="form-group">
+				<label for="inputGitLabHookKey" class="col-sm-2 control-label">GitLab Hook Key </label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="inputGitLabHookKey" name="GITLAB_HOOK_KEY" placeholder="<?php echo $rand_hook_key?>" value="<?php echo $rand_hook_key?>" required="required" readonly="true">
+					<span class="help-block">A randomly generated string for hook authentication. No need to modify. Note: no need to encrypt because GitLab will store its raw value in plain-text.</span>
+				</div>
+			</div>
+			<div class="form-group">
 				<div class="col-sm-offset-2 col-sm-10">
-					<button type="submit" class="btn btn-success">Save all settings</button>
+					<button id="BtnConnectToGitLab" type="button" class="btn btn-success">Hook with GitLab</button>
+					<button id="BtnSubmit" type="submit" class="btn btn-default hide" disabled="disabled">Install</button>
 				</div>
 			</div>
 		</form>
+		<div id="Result"></div>
 	</div>
 	

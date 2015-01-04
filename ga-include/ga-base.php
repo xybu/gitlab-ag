@@ -72,6 +72,13 @@ abstract class Base {
 		return $trial;
 	}
 	
+	public function JSON_OutputData($data, $http_code = '200 OK') {
+		header("HTTP/1.1 $http_code");
+		header("Content-Type: application/json");
+		echo json_encode($data);
+		exit();
+	}
+	
 	public function JSON_OutputError($title, $desc, $http_error_code = '400 Bad Request') {
 		header("HTTP/1.1 $http_error_code");
 		header("Content-Type: application/json");
