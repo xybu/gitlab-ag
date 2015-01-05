@@ -31,7 +31,7 @@ function test_gitlab_conn() {
 	}
 	if (alert_dom != null) return;
 	
-	var hook_url = app_hook_url + '/syshook.php?key=' + $('#inputGitLabHookKey').val();
+	var hook_url = app_hook_url + '/syshook/' + $('#inputGitLabHookKey').val();
 	$.ajax({
 		async: false,
 		type: 'POST',
@@ -40,7 +40,7 @@ function test_gitlab_conn() {
 			'url': hook_url
 		}
 	}).done(function(data) {
-		result_dom.append(new_success_div('Successfully added system hook to GitLab on your behalf: <code>' + hook_url + '</code>. If this URL is not accessible from GitLab server, please delete this hook on GitLab Admin panel, correct the parameters on this page, and retry.'));
+		result_dom.append(new_success_div('Successfully added system hook to GitLab on your behalf: <code>' + hook_url + '</code>. If this URL is not accessible from GitLab server, please delete this hook on GitLab Admin panel, correct the parameters on this page, and retry. <strong>Click Install button to generate config file.</strong>'));
 		$('#BtnSubmit').removeClass('hide').removeAttr('disabled');
 	}).fail(function(xhr) {
 		result_dom.append(new_danger_div('Failed to add system hook to GitLab on your behalf: ' + xhr.responseJSON.message + '.'));

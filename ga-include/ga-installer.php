@@ -11,13 +11,8 @@ require_once 'ga-base.php';
 
 /**
  * Security Concerns
- * Root password is the knowledge factor of authentication, and mtime of 
- * ga-config.php is the ownership factor. If the attacker figures out root 
- * password either from brute force or from data traffic, then he / she can 
- * mess around with the system, but GitLab admin creds are not leaked.
- * If the attacker gets the content of ga-config.php, it is encrypted.
- * If the attacker gets both the root password AND the original ga-config.php
- * file, then everything is subject to leakage.
+ * GitLab stores most credentials we need as plain-text. This makes any encryption 
+ * futile.
  */
 
 /**
@@ -54,39 +49,40 @@ class Installer extends Base {
 		} else {
 			// TODO: make sure all $val is quote escaped.
 			try {
-				$timestamp = time();
+				//$timestamp = time();
 				$config_file_data = "<?php\n/**\n * Generated configuration file\n * DO NOT MODIFY.\n */\n\n";
 				$root_password_raw = $_POST['APP_ROOT_PASS'];
 				$root_password_sha = $this->SHA_Encrypt(base64_encode($root_password_raw));
 				$root_password_hash = password_hash($root_password_sha, PASSWORD_DEFAULT);
-				$api_token_raw = $_POST['APP_API_TOKEN'];
-				$api_token_sha = $this->SHA_Encrypt(base64_encode($api_token_raw));
-				$api_token_hash = password_hash($api_token_sha, PASSWORD_DEFAULT);
+				// no need to encrypt. Students WILL see it from GitLab.
+				//$api_token_raw = $_POST['APP_API_TOKEN'];
+				//$api_token_sha = $this->SHA_Encrypt(base64_encode($api_token_raw));
+				//$api_token_hash = password_hash($api_token_sha, PASSWORD_DEFAULT);
 				foreach ($_POST as $key => $val) {
 					if (empty($val)) throw new InvalidArgumentException($key . ' is unset.');
 					if ($key == 'APP_ROOT_PASS') {
 						$val = $root_password_hash;
-					} else if ($key == 'APP_API_TOKEN') {
-						$val = $api_token_hash;
-					} else if ($key == 'GITLAB_PRIVATE_TOKEN') {
-						$val = $this->AES_Encrypt($val, $api_token_sha . $timestamp);
-					}
-					if (substr($key, strlen($key) - 4) == 'PASS') {
-						$val = $this->AES_Encrypt($val, $root_password_sha . $timestamp);
-					}
+					}// else if ($key == 'APP_API_TOKEN') {
+					//	$val = $api_token_hash;
+					//} else if ($key == 'GITLAB_PRIVATE_TOKEN') {
+					//	$val = $this->AES_Encrypt($val, $api_token_sha . $timestamp);
+					//}
+					//if (substr($key, strlen($key) - 4) == 'PASS') {
+					//	$val = $this->AES_Encrypt($val, $root_password_sha . $timestamp);
+					//}
 					$config_file_data .= "define('". $key ."', '" . $val . "');\n";
 				}
-				$config_file_data .= "define('GITLAB_PRIVATE_TOKEN_U', '" . $this->AES_Encrypt($_POST['GITLAB_PRIVATE_TOKEN'], $root_password_sha . $timestamp) . "');\n";
+				//$config_file_data .= "define('GITLAB_PRIVATE_TOKEN_U', '" . $this->AES_Encrypt($_POST['GITLAB_PRIVATE_TOKEN'], $root_password_sha . $timestamp) . "');\n";
 				if (false === file_put_contents($path, $config_file_data, LOCK_EX))
 					throw new Exception("Failed to write to <code>" . $path . "</code>.");
 				if (false == chmod($path, 0700)) {
 					unlink($path);
 					throw new Exception("Failed to chmod of <code>" . $path . "</code> to <code>0700</code>.");
 				}
-				if (false == touch($path, $timestamp)) {
-					unlink($path);
-					throw new Exception("Failed to change mtime of <code>" . $path . "</code>");
-				}
+				//if (false == touch($path, $timestamp)) {
+				//	unlink($path);
+				//	throw new Exception("Failed to change mtime of <code>" . $path . "</code>");
+				//}
 				$this->JSON_OutputData(array('response' => 'success'));
 			} catch (Exception $e) {
 				$this->JSON_OutputError('Error', $e->GetMessage());

@@ -14,7 +14,7 @@ class Logger {
 	public function __construct() {
 		$this->medoo = new medoo([
 			'database_type' => 'sqlite',
-			'database_file' => dirname(__FILE__) . '/../ga-data/syshook_log.db'
+			'database_file' => dirname(__FILE__) . '/../ga-data/ga-syslog.db'
 		]);
 		$this->medoo->query('CREATE TABLE IF NOT EXISTS log_entries (log_type TEXT, log_detail TEXT, http_request TEXT, http_post TEXT, http_get TEXT, date_created TEXT);');
 	}

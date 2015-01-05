@@ -89,7 +89,7 @@
 					<label for="inputUsernamePattern" class="col-sm-2 control-label">Username Pattern</label>
 					<div class="col-sm-10">
 						<input type="text" class="form-control" id="inputUsernamePattern" value="*" required="required">
-						<span class="help-block">Support wildcard expression.</span>
+						<span class="help-block">Supports wildcard expression.</span>
 					</div>
 				</div>
 				<div class="form-group">
@@ -118,6 +118,71 @@
 		</section>
 		<section class="container-fluid tab-pane" role="tabpanel" id="new-repo">
 			<div class="page-header"><h2>New Repositories</h2></div>
+			<form class="form-horizontal">
+				<div class="form-group">
+					<label for="inputProjectOwnerUsernamePattern" class="col-sm-2 control-label">Username Pattern</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="inputProjectOwnerUsernamePattern" value="*" required="required">
+						<span class="help-block">The target project will be created only for users whose usernames match the pattern. Supports wildcard expression.</span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="inputNewProjectName" class="col-sm-2 control-label">Project Name</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="inputNewProjectName" placeholder="cs240-lab1" required="required">
+						<span class="help-block">Name of the project to create.</span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label for="inputNewProjectDescription" class="col-sm-2 control-label">Project Description</label>
+					<div class="col-sm-10">
+						<textarea class="form-control" id="inputNewProjectDescription" placeholder="Short description for the project, or leave blank."></textarea>
+						<span class="help-block"></span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-sm-2 control-label">Options</label>
+					<div class="col-sm-10">
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" id="OptNewProjectAddHook" value="true" checked="true"> Let gitlab-ag hook with the projects to create.
+							</label>
+						</div>
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" id="OptNewProjectEnableIssueTracker" value="true" checked="true"> Enable issue tracker for the projects to create.
+							</label>
+						</div>
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" id="OptNewProjectEnableMergeRequests" value="true"> Enable merge requests for the projects to create.
+							</label>
+						</div>
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" id="OptNewProjectEnableWiki" value="true" checked="true"> Enable wiki for the projects to create.
+							</label>
+						</div>
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" id="OptNewProjectEnableSnippets" value="true"> Enable snippets for the projects to create.
+							</label>
+						</div>
+						<div class="checkbox">
+							<label>
+								<input type="checkbox" id="OptNewProjectIsPublic" value="true"> Set the project visibility to <em>public</em>.
+							</label>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<div class="col-sm-offset-2 col-sm-10">
+						<button id="BtnListNewProjectMatchedUsers" class="btn btn-default">List matched Users</button>
+						<button id="BtnCreateNewProjects" class="btn btn-warning hide">Create Projects</button>
+					</div>
+				</div>
+			</form>
+			<div id="CreateProjectResult"></div>
 		</section>
 		<section class="container-fluid tab-pane" role="tabpanel" id="edit-repo">
 			<div class="page-header"><h2>Edit Repositories</h2></div>

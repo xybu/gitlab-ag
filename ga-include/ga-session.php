@@ -31,24 +31,16 @@ class Session extends Base {
 	
 	// Knowledge key is actually the SHA-256 hash of the root password.
 	public $KnowledgeKey = null;
-	
-	// Possession key is the mtime of ga-config.php.
-	public $PossessionKey = null;
-	
+		
 	public function __construct() {
 		session_start();
-		$this->LoadPossessionKey();
 	}
 	
 	public function __destruct() {
 	}
 	
 	public function IsSignedIn() {
-		return !empty($this->KnowledgeKey) && !empty($this->PossessionKey);
-	}
-	
-	public function LoadPossessionKey() {
-		$this->PosessionKey = filemtime(getcwd() . '/ga-data/ga-config.php');
+		return !empty($this->KnowledgeKey);
 	}
 	
 	public function DecryptPassword($data) {
@@ -113,8 +105,7 @@ class Session extends Base {
 		
 		$pass_try = $_POST['password'];
 		$pass_try_sha = $this->SHA_Encrypt(base64_encode($pass_try));
-		$pass_verif = $this->AES_Decrypt(APP_ROOT_PASS, $pass_try_sha . $this->PossessionKey);
-		if ($pass_verif == null || !password_verify($pass_try_sha, $pass_verif)) {
+		if (!password_verify($pass_try_sha, APP_ROOT_PASS)) {
 			$this->IncrementFailureCounter();
 			return false;
 		}
@@ -135,7 +126,6 @@ class Session extends Base {
 		$view->ShowHtmlHeader('Sign In');
 		$view->Render('signin.phtml');
 		$view->ShowHtmlFooter(array(
-			//'//cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/components/sha256-min.js',
 			'/ga-assets/sign_in.js'
 		));
 	}

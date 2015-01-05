@@ -63,9 +63,9 @@ class ControlPanel extends Base {
 		
 		$view = new View();
 		$view->ShowHtmlHeader('Control Panel', true);
-		$view->Render('admincp.phtml', array(
-			'GitLab_PrivateToken' => $this->AES_Decrypt(GITLAB_PRIVATE_TOKEN_U, $this->session->GetSessionKey() . $this->session->PosessionKey)
-		));
+		$view->Render('admincp.phtml', [
+			'GitLab_PrivateToken' => GITLAB_PRIVATE_TOKEN
+		]);
 		$view->ShowHtmlFooter(['/ga-assets/admincp.js']);
 	}
 

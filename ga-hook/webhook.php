@@ -15,6 +15,6 @@ if (!file_exists(getcwd() . "/../ga-data/ga-config.php"))
 }
 
 require_once dirname(__FILE__) . '/../ga-data/ga-config.php';
-require_once dirname(__FILE__) . '/../ga-include/ga-hook.php';
+require_once dirname(__FILE__) . '/../ga-include/ga-webhook.php';
 
-new GltLab_Hook();
+new GitLab_WebHook();

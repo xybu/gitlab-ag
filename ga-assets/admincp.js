@@ -40,6 +40,9 @@ $(document).ready(function() {
 		}
 	});
 	
+	$('.need-load-repo').on('shown.bs.tab', function(e) {
+	});
+	
 	// route user creation actions
 	var csv_dom = $('#NewUserCsvBlock');
 	csv_dom.focus(function() {
