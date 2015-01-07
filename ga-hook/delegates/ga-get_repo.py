@@ -58,7 +58,7 @@ Data will be put to a file (name specified in argv[1]) in ../repos/. It will be 
 import os
 import sys
 import json
-import signal
+# import signal
 import subprocess
 import http.client
 import datetime
@@ -69,7 +69,7 @@ task_json_raw = ''
 archive_raw = ''
 
 # Prevent zombie process
-signal.signal(signal.SIGCHLD, signal.SIG_IGN)
+# signal.signal(signal.SIGCHLD, signal.SIG_IGN)
 
 def Now():
 	return datetime.datetime.now(datetime.timezone.utc)
@@ -101,25 +101,11 @@ except Exception as e:
 
 # Remove the '.git' tail
 target_repo_path = task_json['archive_root_path'] + '/' + task_json['push_event']['repository']['url'].split(':', 1)[1][:-4]
-result = ''
-
-print(target_repo_path)
-print(os.path.exists(target_repo_path))
-print(os.path.isdir(target_repo_path))
 
 if os.path.exists(target_repo_path) and os.path.isdir(target_repo_path):
 	# if the repository is saved before, run a git pull to update it
 	print('Running "git pull" on ' + target_repo_path)
-	subp = subprocess.Popen(['git', 'pull'], cwd = target_repo_path, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
-	sout, serr = subp.communicate(None)
-	sout = sout.decode('UTF-8')
-	serr = serr.decode('UTF-8')
-	if 'Already up-to-date' in sout:
-		result = 'no_change'
-	else:
-		result = 'needs_grading'
-	print(sout)
-	print(serr)
+	subprocess.call(['git', 'pull'], cwd = target_repo_path)
 else:
 	try:
 		user_namespace = os.path.dirname(target_repo_path)
@@ -129,20 +115,15 @@ else:
 		if os.path.isfile(target_repo_path): os.remove(target_repo_path)
 		if not os.path.exists(user_namespace): os.makedirs(user_namespace)
 		
-		subp = subprocess.Popen(['git', 'clone', git_repo_url], stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE, cwd = user_namespace)
-		sout, serr = subp.communicate(None)
-		
-		result = 'needs_grading'
+		subprocess.call(['git', 'clone', git_repo_url], cwd = user_namespace)
 	except Exception as e:
 		LogException('get_repo', e)
 		sys.exit(1)
 
 post_data = {
 	'project_id': task_json['push_event']['project_id'],
-	'result': result
+	'result': 'needs_grading'
 }
-
-print(result)
 
 cli = http.client.HTTPConnection(task_json['delegate_callback'].split('://', 1)[1])
 cli.request('POST', '/callback/' + task_json['delegate_key'], json.dumps(post_data))
@@ -151,3 +132,4 @@ if response.status < 200 or response.status > 300:
 	LogException('get_repo', response.read())
 else:
 	os.remove(script_path + '/../pushes/' + sys.argv[1])
+
