@@ -1,6 +1,7 @@
 # Project configuration file
 *.conf
 *.db
+*.log
 tmp/
 ga-data/
 

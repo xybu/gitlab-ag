@@ -1,6 +1,6 @@
 <?php
 /**
- * System Hook for GitLab.
+ * Routes requests from GitLab to gitlab-ag.
  * 
  * @author Xiangyu Bu <xybu92@live.com>
  */
@@ -13,6 +13,6 @@ if (!file_exists(getcwd() . "/../ga-data/ga-config.php"))
 }
 
 require_once dirname(__FILE__) . '/../ga-data/ga-config.php';
-require_once dirname(__FILE__) . '/../ga-include/ga-syshook.php';
+require_once dirname(__FILE__) . '/../ga-include/ga-webhook.php';
 
-new GltLab_SystemHook();
+new GitLab_WebHook();

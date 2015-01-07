@@ -7,7 +7,7 @@ require_once 'lib/medoo.php';
  
 class Database {
 	
-	const DATABASE_FILENAME = 'ga-data.db';
+	const DATABASE_FILENAME = 'ga-webhook.db';
 	
 	protected $medoo = null;
 	
@@ -25,8 +25,8 @@ class Database {
 	}
 	
 	function AddWebHookKey($project_id, $hook_key) {
-		if ($this->VerifyWebHookKey($project_id, $hook_key))
-			return false;		
+		//if ($this->VerifyWebHookKey($project_id, $hook_key))
+		//	return false;		
 		return $this->medoo->insert('webhook_keys', [
 			'project_id' => $project_id,
 			'hook_key' => hash('sha256', $hook_key),

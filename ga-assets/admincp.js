@@ -48,7 +48,7 @@ $(document).ready(function() {
 	csv_dom.focus(function() {
 		csv_dom.parent().parent().removeClass('has-error');
 		$('#CreateNewUsersResult').addClass('hide');
-		$('#BtnStartCreateNewUsers').text('Start').removeClass('btn-info').removeClass('btn-success').addClass('btn-default');
+		$('#BtnStartCreateNewUsers').text('Start').removeClass('btn-info').removeClass('btn-success').addClass('btn-default').removeClass('disabled');
 	});
 	$('#BtnStartCreateNewUsers').click(function() {
 		var new_user_result_dom = $('#CreateNewUsersResult');
@@ -113,6 +113,7 @@ $(document).ready(function() {
 					'password': new_rand_str(),
 					'name': val[name_col_num]
 				};
+				console.log(record);
 				if (uid_col_num != -1) record['extern_uid'] = val[uid_col_num];
 				if (projects_limit > 0) record['projects_limit'] = projects_limit;
 				if (is_admin) record['admin'] = is_admin;

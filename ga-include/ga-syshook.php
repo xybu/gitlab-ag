@@ -12,7 +12,7 @@ require_once 'ga-db.php';
 require_once 'ga-logger.php';
 require_once 'ga-http.php';
 
-class GltLab_SystemHook extends Base {
+class GitLab_SystemHook extends Base {
 	
 	protected $logger = null;
 	protected $raw = null;
