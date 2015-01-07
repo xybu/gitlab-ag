@@ -61,6 +61,9 @@ class GitLab_WebHook extends Base {
 				'push_event' => $this->data
 			];
 			$file_name = $this->data['project_id'] . '_' . $delegate_key . '.json';
+			
+			if (!is_dir(getcwd() . '/pushes')) mkdir(getcwd() . '/pushes', 0770)
+			
 			file_put_contents(getcwd() . '/pushes/' . $file_name, json_encode($file_data));
 			
 			exec(getcwd() . '/delegates/ga-get_repo.py "' . $file_name . '" > /dev/null &');

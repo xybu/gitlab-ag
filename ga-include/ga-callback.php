@@ -43,9 +43,9 @@ class GitLab_CallbackHook extends Base{
 				if (strpos($project_name, GITLAB_ADMIN_USER . '/') !== 0 && is_dir(APP_ARCHIVE_PATH . '/' . GITLAB_ADMIN_USER . '/' . $this->delegate_record['data']['repository']['name'] . '-test')) {
 					$delegate_key = $this->GetRandStr(32);
 					
-					if (!is_dir(getcwd() . '/events'))
-						mkdir(getcwd() . '/events');
-					file_put_contents(getcwd() . '/events/' . $this->delegate_record['data']['user_id'] . '_' . $this->delegate_record['data']['repository']['name'] . '_' . time() . '.json', json_encode([
+					if (!is_dir(getcwd() . '/queue')) mkdir(getcwd() . '/queue');
+					
+					file_put_contents(getcwd() . '/queue/' . $this->delegate_record['data']['user_id'] . '_' . $this->delegate_record['data']['repository']['name'] . '_' . time() . '.json', json_encode([
 						'project_id' => $project_id,
 						'project_name' => $project_name,
 						'delegate_key' => $delegate_key,
