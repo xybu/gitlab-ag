@@ -1,0 +1,84 @@
+server {
+	listen 8099;
+	listen [::]:8099;
+	
+	root /home/xb/gitlab-ag/ga-hook;
+	
+	index index.html;
+	
+	rewrite ^/(webhook|syshook|callback)/(.*)$ /ga-$1.php?key=$2? last;
+	
+	location / {
+		allow 127.0.0.1;
+		deny all;
+		try_files $uri =404;
+	}
+	
+	location ~ /(delegates|logs) {
+		deny all;
+	}
+	
+	location ~ \.py$ {
+		deny all;
+	}
+	
+	location ~ \.php$ {
+		allow 127.0.0.1;
+		deny all;
+		include /etc/nginx/snippets/fastcgi-php.conf;
+		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+		fastcgi_pass unix:/var/run/php5-fpm.sock;
+	}
+	
+}
+
+server {
+	listen 8088 default_server;
+	listen [::]:8088 default_server;
+
+	listen 443 ssl default_server;
+	listen [::]:443 ssl default_server;
+	
+	root /home/xb/gitlab-ag;
+
+	# Add index.php to the list if you are using PHP
+	index index.php index.html;
+
+	server_name _;
+
+	location / {
+		# First attempt to serve request as file, then
+		# as directory, then fall back to displaying a 404.
+		try_files $uri $uri/ =404;
+	}
+	
+	location ~ /(ga-data|ga-include|ga-hook|ga-views|tmp) {
+		deny all;
+		return 403;
+	}
+	
+	location /wpad.dat {
+		access_log off;
+		log_not_found off;
+	}
+
+	location /favicon.ico {
+		access_log off;
+		log_not_found off;
+	}
+	
+	location ~ \.php$ {
+		include /etc/nginx/snippets/fastcgi-php.conf;
+		fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
+		fastcgi_pass unix:/var/run/php5-fpm.sock;
+	}
+	
+	location /nginx.conf {
+		deny all;
+		return 404;
+	}
+	
+	location ~ /\.ht {
+		deny all;
+	}
+}
