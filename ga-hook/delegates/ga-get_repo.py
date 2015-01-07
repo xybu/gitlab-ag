@@ -58,6 +58,7 @@ Data will be put to a file (name specified in argv[1]) in ../repos/. It will be 
 import os
 import sys
 import json
+import signal
 import subprocess
 import http.client
 import datetime
@@ -66,6 +67,9 @@ script_path = os.path.dirname(os.path.realpath(__file__))
 task_json = None
 task_json_raw = ''
 archive_raw = ''
+
+# Prevent zombie process
+signal.signal(signal.SIGCHLD, signal.SIG_IGN)
 
 def Now():
 	return datetime.datetime.now(datetime.timezone.utc)
@@ -95,17 +99,22 @@ except Exception as e:
 	LogException('get_repo', e, task_json_raw)
 	sys.exit(1)
 
-target_repo_path = task_json['archive_root_path'] + '/' + task_json['push_event']['repository']['url'].split(':', 1)[1]
+# Remove the '.git' tail
+target_repo_path = task_json['archive_root_path'] + '/' + task_json['push_event']['repository']['url'].split(':', 1)[1][:-4]
 result = ''
+
+print(target_repo_path)
+print(os.path.exists(target_repo_path))
+print(os.path.isdir(target_repo_path))
 
 if os.path.exists(target_repo_path) and os.path.isdir(target_repo_path):
 	# if the repository is saved before, run a git pull to update it
 	print('Running "git pull" on ' + target_repo_path)
-	subp = subprocess.Popen(['git', 'pull'], cwd = target_repo_path, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
+	subp = subprocess.Popen(['git', 'pull'], cwd = target_repo_path, stdin = subprocess.PIPE, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 	sout, serr = subp.communicate(None)
 	sout = sout.decode('UTF-8')
 	serr = serr.decode('UTF-8')
-	if 'up-to-date' not in sout:
+	if 'Already up-to-date' in sout:
 		result = 'no_change'
 	else:
 		result = 'needs_grading'

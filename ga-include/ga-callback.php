@@ -17,7 +17,7 @@ class GitLab_CallbackHook extends Base{
 		//}
 		
 		$raw = @file_get_contents('php://input');
-		//file_put_contents(APP_ABS_PATH . '/ga-hook/logs/callback.log', $raw);
+		file_put_contents(APP_ABS_PATH . '/ga-hook/logs/callback.log', $raw);
 		
 		$this->response = json_decode($raw, true);
 		$this->delegate_db = new Delegate();

@@ -4,6 +4,10 @@
 *.log
 tmp/
 ga-data/
+ga-hook/pushes/
+ga-hook/queue/
+ga-hook/logs/
+ga-hook/fails/
 
 # Created by https://www.gitignore.io
 

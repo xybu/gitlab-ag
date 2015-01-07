@@ -16,7 +16,7 @@ class GitLab_WebHook extends Base {
 	function __construct() {
 		
 		$raw = @file_get_contents('php://input');
-		//file_put_contents(APP_ABS_PATH . '/ga-hook/logs/webhook.log', $raw);
+		file_put_contents(APP_ABS_PATH . '/ga-hook/logs/webhook.log', $raw);
 		
 		$this->data = json_decode($raw, true);
 		
