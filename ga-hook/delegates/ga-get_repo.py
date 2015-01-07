@@ -71,6 +71,16 @@ def Now():
 	return datetime.datetime.now(datetime.timezone.utc)
 
 def LogException(src, ex, info = None):
+	if not os.path.isdir(script_path + '/../logs'):
+		if os.path.exists(script_path + '/../logs'):
+			try:
+				os.remove(script_path + '/../logs')
+			except:
+				pass
+		try:
+			os.mkdir(script_path + '/../logs')
+		except:
+			pass
 	with open(script_path + '/../logs/' + Now().strftime('%Y%m%d-%H%M%S.%f') + '_' + src + '.log', 'w') as f:
 		f.write(str(ex) + '\n\n')
 		if info != None: f.write('Reference Info:\n' + str(info))
