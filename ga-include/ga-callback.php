@@ -31,7 +31,7 @@ class GitLab_CallbackHook extends Base{
 	}
 	
 	function RouteEvent() {
-		$project_id = $this->delegate_record['data']['project_id'];
+		$project_id = $this->response['project_id'];
 		
 		if ($this->delegate_record['type'] == 'get_repo') {
 			// callback from get_repo delegate, next step is to pass the assignment
@@ -55,7 +55,6 @@ class GitLab_CallbackHook extends Base{
 						]
 					]));
 					$this->delegate_db->AddNewDelegate($project_id, $delegate_key, 'grader_queue', $this->delegate_record['data']);
-					$this->delegate_db->DeleteDelegate($project_id, $_GET['key']);
 					
 					$fds = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
 					$stdin_data = ['delegate_callback' => APP_HOOK_URL, 'temp_path' => APP_TEMP_PATH];
@@ -69,6 +68,8 @@ class GitLab_CallbackHook extends Base{
 					}
 				}
 			}
+			
+			$this->delegate_db->DeleteDelegate($project_id, $_GET['key']);
 			
 			header('HTTP/1.1 202 Accepted');
 			
