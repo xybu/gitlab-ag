@@ -14,7 +14,7 @@ server {
 		try_files $uri =404;
 	}
 	
-	location ~ /(delegates|logs) {
+	location ~ /(delegates|logs|pushes|queue|fails) {
 		deny all;
 	}
 	
