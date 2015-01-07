@@ -100,6 +100,7 @@ result = ''
 
 if os.path.exists(target_repo_path) and os.path.isdir(target_repo_path):
 	# if the repository is saved before, run a git pull to update it
+	print('Running "git pull" on ' + target_repo_path)
 	subp = subprocess.Popen(['git', 'pull'], cwd = target_repo_path, stdout = subprocess.PIPE, stderr = subprocess.PIPE)
 	sout, serr = subp.communicate(None)
 	sout = sout.decode('UTF-8')
@@ -108,6 +109,8 @@ if os.path.exists(target_repo_path) and os.path.isdir(target_repo_path):
 		result = 'no_change'
 	else:
 		result = 'needs_grading'
+	print(sout)
+	print(serr)
 else:
 	try:
 		user_namespace = os.path.dirname(target_repo_path)
@@ -130,12 +133,12 @@ post_data = {
 	'result': result
 }
 
+print(result)
+
 cli = http.client.HTTPConnection(task_json['delegate_callback'].split('://', 1)[1])
 cli.request('POST', '/callback/' + task_json['delegate_key'], json.dumps(post_data))
 response = cli.getresponse()
 if response.status < 200 or response.status > 300:
 	LogException('get_repo', response.read())
 else:
-	LogException('get_repo', response.read())
-
-os.remove(script_path + '/../pushes/' + sys.argv[1])
+	os.remove(script_path + '/../pushes/' + sys.argv[1])
