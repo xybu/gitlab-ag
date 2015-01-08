@@ -37,10 +37,16 @@ class GitLab_SystemHook extends Base {
 		$this->data = json_decode($this->raw, true);
 		
 		switch ($this->data['event_name']) {
+			case 'user_add_to_team':
+				// forking a project does not trigger 'project_create' event.
+				// Should check if this event refers to a project that is not recorded.
+				// Thus this is treated the same way as 'project_create'.
 			case 'project_create':
 				$this->AddWebHookToProject($this->data);
+				$this->logger->addLog($this->data['event_name'], $this->raw);
+				break;
 			case 'project_destroy':
-			case 'user_add_to_team':
+				$this->DeleteWebHookFromProject($this->data);
 			case 'user_remove_from_team':
 			case 'user_create':
 			case 'user_destroy':
@@ -56,16 +62,18 @@ class GitLab_SystemHook extends Base {
 	
 	function AddWebHookToProject($event_args) {
 		$cli = new HttpClient(GITLAB_URL . '/api/v3/projects/' . $event_args['project_id'] . '/hooks?private_token=' . GITLAB_PRIVATE_TOKEN);
-		try {
-			$rnd_hook_key = $this->GetRandStr(32);
-			$response = $cli->Post(['url' => APP_HOOK_URL . '/webhook/' . $rnd_hook_key ]);
-			//file_put_contents(getcwd() . '/../ga-data/response.json', json_encode(get_object_vars($response)));
-			if ($response->StatusCode > 100 && $response->StatusCode < 300) {
-				$db = new Database();
-				$db->AddWebHookKey($event_args['project_id'], $rnd_hook_key);
+		$db = new Database();
+		if (!$db->ProjectHasWebHook($event_args['project_id'])) {
+			try {
+				$rnd_hook_key = $this->GetRandStr(32);
+				$response = $cli->Post(['url' => APP_HOOK_URL . '/webhook/' . $rnd_hook_key ]);
+				//file_put_contents(getcwd() . '/../ga-data/response.json', json_encode(get_object_vars($response)));
+				if ($response->StatusCode > 100 && $response->StatusCode < 300) {
+					$db->AddWebHookKey($event_args['project_id'], $rnd_hook_key);
+				}
+			} catch (Exception $e) {
+				$this->logger->addLog('system_webhook_error', 'Failed to add webhook to project ' . $event_args['path_with_namespace'] . ' (' . $event_args['project_id'] . ').');
 			}
-		} catch (Exception $e) {
-			$this->logger->addLog('system_webhook_error', 'Failed to add webhook to project ' . $event_args['path_with_namespace'] . ' (' . $event_args['project_id'] . ').');
 		}
 	}
 	

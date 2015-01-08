@@ -45,6 +45,14 @@ class Database {
 		return false;
 	}
 	
+	function ProjectHasWebHook($project_id) {
+		$rows = $this->medoo->select('webhook_keys', 'hook_key', [
+			'project_id[=]' => $project_id
+		]);
+		if (is_array($rows) && count($rows) > 0) return true;
+		return false;
+	}
+	
 	/**
 	 * Delete all keys for a project, and return the number of keys deleted.
 	 */
