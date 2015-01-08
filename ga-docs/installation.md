@@ -13,7 +13,7 @@ are recommended. Ubuntu has built-in support for Python.
 Here is a guide for [setting up a Ubuntu server from scratch](http://xybu.me/setting-up-a-ubuntu-server/).
 
 ```bash
-sudo apt-get install git curl pip3
+sudo apt-get install git curl python3-pip
 sudo pip3 install daemonize
 ```
 

@@ -96,7 +96,7 @@ result_semaphore = None
 
 def VirtualizedCmd(cmd, stdin = None, mount = [], memory = '256m', net = 'none', runas = 'slave', cwd = None):
 	docker_args = ['docker', 'run', '-t', '-i', '--attach', 'STDIN,STDOUT,STDERR', '--cpu-shares', '25', '--memory', memory, '--user', runas, '--net', net]
-	for x in mount: docker_args += ['--volume'， x]
+	for x in mount: docker_args += ['--volume', x]
 	if cwd != None: docker_args += ['-w', cwd]
 	docker_args += [docker_image_name] + cmd
 	return docker_args
