@@ -69,6 +69,9 @@ import queue
 import http.client
 from daemonize import Daemonize
 
+docker_enabled = True
+docker_image_name = 'xybu/c_dev:jan_15'
+
 num_of_graders = 2
 main_sleep_time = 10 # in seconds
 grader_timeout = 1800 # in seconds
@@ -90,6 +93,13 @@ task_queue = None
 result_queue = None
 worker_semaphore = None
 result_semaphore = None
+
+def VirtualizedCmd(cmd, stdin = None, mount = [], memory = '256m', net = 'none', runas = 'slave', cwd = None):
+	docker_args = ['docker', 'run', '-t', '-i', '--attach', 'STDIN,STDOUT,STDERR', '--cpu-shares', '25', '--memory', memory, '--user', runas, '--net', net]
+	for x in mount: docker_args += ['--volume'， x]
+	if cwd != None: docker_args += ['-w', cwd]
+	docker_args += [docker_image_name] + cmd
+	return docker_args
 
 def Now():
 	return datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d-%H%M%S.%f')
@@ -119,7 +129,10 @@ class GraderThread(threading.Thread):
 			try:
 				if not os.path.isfile(task['temp_path'] + '/test_all'):
 					raise Exception('Executable "test_all" was not found.')
-				subp = subprocess.Popen([task['temp_path'] + '/test_all'], cwd=task['temp_path'], stdin=subprocess.Pipe, stdout=subprocess.Pipe, stderr=subprocess.Pipe)
+				cmd = [task['temp_path'] + '/test_all']
+				if docker_enabled:
+					cmd = VirtualizedCmd(cmd, mount=[task['temp_path'] + ':/home'], cwd='/home')
+				subp = subprocess.Popen(cmd, cwd=task['temp_path'], stdin=subprocess.Pipe, stdout=subprocess.Pipe, stderr=subprocess.Pipe)
 				sout, serr = subp.communicate(None, timeout = grader_timeout)
 				grade_json = json.loads(sout)
 				grade_result['grade'] = grade_json['grade_total']
