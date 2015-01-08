@@ -3,7 +3,8 @@
 '''
 A command queue daemon. This prevents system outages.
 
-When the daemon starts, it must accept the following JSON keys:
+When the daemon starts, it must accept the following JSON text from 
+file "ga-data/ga-grader_queue.cfg":
 {
 	"delegate_callback": "http://127.0.0.1:8099",
 	"temp_path": "/tmp/ag"
@@ -65,6 +66,7 @@ import shutil
 import datetime
 import logging
 import threading
+import subprocess
 import queue
 import http.client
 from daemonize import Daemonize
@@ -77,6 +79,7 @@ main_sleep_time = 10 # in seconds
 grader_timeout = 1800 # in seconds
 
 script_path = os.path.dirname(os.path.realpath(__file__))
+cfg_file = script_path + '/../../ga-data/ga-grader_queue.cfg'
 pid_file = script_path + '/../../ga-data/ga-grader_queue.pid'
 log_file = script_path + '/../../ga-data/ga-grader_queue.log'
 
@@ -181,16 +184,28 @@ def main():
 	global task_queue
 	global result_queue
 	
+	logger.info('grader queue started.')
+	
 	event_root_dir = script_path + '/../queue'
 	if os.path.isfile(event_root_dir): os.remove(event_root_dir)
 	if not os.path.exists(event_root_dir): os.makedirs(event_root_dir)
 	if not os.path.exists(script_path + '/../fails'): os.makedirs(script_path + '/../fails')
 	
-	config_text = ''
-	for line in sys.stdin:
-		config_text = config_text + line + '\n'
-	config = json.loads(config_text)
+	logger.debug('path checking completed.')
+
+	try:
+		logger.debug('loading config from "' + cfg_file + '".')
+		f = open(cfg_file, 'r')
+		config = json.loads(f.read())
+		f.close()
+		logger.info(config['delegate_callback'])
+		logger.info(config['temp_path'])
+	except Exception as e:
+		logger.critical('cannot load config from "' + cfg_file + '": ' + str(e))
+		sys.exit(1)
 	
+	logger.info('input is correct.')
+
 	worker_semaphore = threading.Semaphore(0)
 	result_semaphore = threading.Semaphore(0)
 	task_queue = queue.Queue()
@@ -205,9 +220,10 @@ def main():
 	while True:
 		task_files = os.listdir()
 		for filename in task_files:
+			logger.info('processing file "' + filename + '"')
 			try:
 				with open(filename, 'r') as f:
-					t = json.loads(f.read().decode('UTF-8'))
+					t = json.loads(f.read())
 					t_dir = config['temp_path'] + '/' + t['project_name'].replace('/', '_') + Now()
 					os.makedirs(t_dir)
 					for d in t['merge_dir']:
@@ -229,3 +245,6 @@ def main():
 		time.sleep(main_sleep_time)
 
 Daemonize(app="ga-command_queue", pid=pid_file, action=main, keep_fds = daemon_keep_fds).start()
+
+logger.info('grader queue stopped.')
+

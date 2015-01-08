@@ -1,5 +1,6 @@
 # Project configuration file
 *.conf
+*.cfg
 *.db
 *.log
 tmp/

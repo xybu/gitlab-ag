@@ -12,9 +12,9 @@ class GitLab_CallbackHook extends Base{
 	
 	function __construct() {
 		// All GitLab hook events are sent via HTTP POST.
-		//if (!$this->IsHttpPost() || !isset($_GET['key'])) {
-		//	$this->JSON_OutputError('invalid-request', 'Invalid Request.', '403 Forbidden');
-		//}
+		if (!$this->IsHttpPost() || !isset($_GET['key'])) {
+			$this->JSON_OutputError('invalid-request', 'Invalid Request.', '403 Forbidden');
+		}
 		
 		$raw = @file_get_contents('php://input');
 		file_put_contents(APP_ABS_PATH . '/ga-hook/logs/callback.log', $raw);
@@ -44,7 +44,12 @@ class GitLab_CallbackHook extends Base{
 					$delegate_key = $this->GetRandStr(32);
 					
 					if (!is_dir(getcwd() . '/queue')) mkdir(getcwd() . '/queue');
-					
+					if (!is_file(APP_ABS_PATH . '/ga-data/ga-grader_queue.cfg')) {
+						file_put_contents(APP_ABS_PATH . '/ga-data/ga-grader_queue.cfg', json_encode([
+							'delegate_callback' => APP_HOOK_URL,
+							'temp_path' => APP_TEMP_PATH,
+						]));
+					}
 					file_put_contents(getcwd() . '/queue/' . $this->delegate_record['data']['user_id'] . '_' . $this->delegate_record['data']['repository']['name'] . '_' . time() . '.json', json_encode([
 						'project_id' => $project_id,
 						'project_name' => $project_name,
@@ -55,17 +60,8 @@ class GitLab_CallbackHook extends Base{
 						]
 					]));
 					$this->delegate_db->AddNewDelegate($project_id, $delegate_key, 'grader_queue', $this->delegate_record['data']);
-					
-					$fds = [0 => ['pipe', 'r'], 1 => ['pipe', 'w'], 2 => ['pipe', 'w']];
-					$stdin_data = ['delegate_callback' => APP_HOOK_URL, 'temp_path' => APP_TEMP_PATH];
-					$proc = proc_open(getcwd() . '/delegates/ga-grader_queue.py start', $fds, $pipes);
-					if (is_resource($proc)) {
-						fwrite($pipes[0], json_encode($stdin_data));
-						fclose($pipes[0]);
-						fclose($pipes[1]);
-						fclose($pipes[2]);
-						proc_close($proc);
-					}
+					if (!is_file(APP_ABS_PATH . '/ga-data/ga-grader_queue.pid'))
+						exec(getcwd() . '/delegates/ga-grader_queue.py start > /dev/null &');
 				}
 			}
 			
