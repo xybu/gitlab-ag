@@ -26,7 +26,7 @@ An event file should be a JSON consists of the following keys:
 An item in task_queue is event plus a key 'temp_path'.
 
 Grader will run `test_all` under this temp_path. The `test_all` must be executable,
-and its stdout should be like the following
+and its stdout should be like the following:
 
 Test case 1: basic case (10 pts / 10 pts)
 Output number too large.
@@ -41,9 +41,10 @@ grade_total = 30
 grade_datetime = YYYY-mm-dd HH:MM:SS +Z
 </summary>
 
-The <summary> node contains machine-readable info. The parameter grade_total, setting the total score
-for this submission, is required. The text outside of <summary> node is ignored by gitlab-ag, but will
-be sent to the student to read.
+stdout ends here. The <summary> node contains machine-readable info, in INI format. 
+The parameter grade_total, setting the total score for this submission, is required. 
+The text outside of <summary> node is ignored by gitlab-ag, but will be sent to the 
+student to read.
 
 Its stderr is for debugging and will be sent back to hook. However students will not see its content.
 
@@ -53,7 +54,6 @@ Items in result_queue are dictionaries with keys
 	'project_id': 123,
 	'project_name': 'root/lab1-src',
 	'delegate_key': "dsfdsf",
-	'grade': 0,
 	'grade_data': None,
 	'grade_log': ''
 }
@@ -127,9 +127,8 @@ class GraderThread(threading.Thread):
 				'project_id': task['project_id'],
 				'project_name': task['project_name'],
 				'delegate_key': task['delegate_key'],
-				'grade': 0,
 				'grade_data': None,
-				'grade_log': ''
+				'grade_log': None
 			}
 			try:
 				if not os.path.isfile(task['temp_path'] + '/test_all'):
@@ -137,14 +136,13 @@ class GraderThread(threading.Thread):
 				cmd = [task['temp_path'] + '/test_all']
 				if docker_enabled:
 					cmd = VirtualizedCmd(cmd, mount=[task['temp_path'] + ':/home'], cwd='/home')
-				subp = subprocess.Popen(cmd, cwd=task['temp_path'], stdin=subprocess.Pipe, stdout=subprocess.Pipe, stderr=subprocess.Pipe)
+				subp = subprocess.Popen(cmd, cwd=task['temp_path'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 				sout, serr = subp.communicate(None, timeout = grader_timeout)
-				grade_json = json.loads(sout)
-				grade_result['grade'] = grade_json['grade_total']
-				grade_result['grade_data'] = grade_json['grade_detail']
+				grade_result['grade_data'] = sout
 				grade_result['grade_log'] = serr
 			except Exception as e:
 				logger.warning(str(e))
+				grade_result['grade_data'] = "<summary>grade_total=0\n</summary>"
 				grade_result['grade_log'] = str(e)
 			
 			result_queue.put(grade_result)
@@ -155,7 +153,7 @@ class GraderThread(threading.Thread):
 				os.rmdir(task['temp_path'])
 			except:
 				pass
-			
+
 class ReporterThread(threading.Thread):
 	
 	def __init__(self):

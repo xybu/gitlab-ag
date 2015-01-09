@@ -72,9 +72,13 @@ class GitLab_CallbackHook extends Base{
 			
 		} else if ($this->delegate_record['type'] == 'grader_queue') {
 			// callback from grader_queue, should record the grade result
+			preg_match("/<summary ?.*>(.*)<\/summary>/", $this->response['grade_data'], $matches);
+			$grade_data_ini = $matches[1];
+			$grade_data_parsed = parse_ini_string($grade_data_ini);
+			$grade = intval($grade_data_parsed['grade_total']);
 			require_once 'ga-gradebook.php';
 			$grade_book = new GradeBook();
-			$grade_book->AddNewRecord($this->response['project_id'], $this->response['project_name'], $this->response['grade'], json_decode($this->response['grade_data'], true), $this->response['grade_log']);
+			$grade_book->AddNewRecord($this->response['project_id'], $this->response['project_name'], $grade, $this->response['grade_data'], $this->response['grade_log']);
 			$this->delegate_db->DeleteDelegateByKey($this->response['project_id'], $_GET['key']);
 			header('HTTP/1.1 201 Created');
 		}
