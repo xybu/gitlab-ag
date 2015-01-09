@@ -17,11 +17,11 @@ delegates are written in Python3k.
 
 **Table of Contents**
 
- * [Installation](blob/master/ga-docs/installation.md)
- * [Usage](blob/master/ga-docs/usage.md)
- * [Auto-grading](blob/master/ga-docs/autograding.md)
- * [Security concerns](blob/master/ga-docs/security.md)
- * [Instructor notes](blob/master/ga-docs/instructor.md)
+ * [Installation](ga-docs/installation.md)
+ * [Usage](ga-docs/usage.md)
+ * [Auto-grading](ga-docs/autograding.md)
+ * [Security concerns](ga-docs/security.md)
+ * [Instructor notes](ga-docs/instructor.md)
 
 **License**
 
