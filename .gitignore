@@ -58,9 +58,6 @@ coverage.xml
 *.mo
 *.pot
 
-# Django stuff:
-*.log
-
 # Sphinx documentation
 docs/_build/
 
@@ -119,6 +116,8 @@ crashlytics-build.properties
 
 ### Linux ###
 *~
+*.swp
+*.swo
 
 # KDE directory preferences
 .directory

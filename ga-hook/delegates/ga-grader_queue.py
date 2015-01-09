@@ -25,25 +25,27 @@ An event file should be a JSON consists of the following keys:
 
 An item in task_queue is event plus a key 'temp_path'.
 
-Grader will run `test_all` under this temp_path. The `test_all` must be runnable,
-and its stdout must be a JSON string of format
+Grader will run `test_all` under this temp_path. The `test_all` must be executable,
+and its stdout should be like the following
 
-{
-	'grade_total': 100,
-	'grade_detail': {
-		'example_case_1': {
-			'grade': 10,
-			'reason': 'good!'
-		},
-		'example_case_2': {
-			'grade': 0,
-			'reason': 'you forgot something.'
-		}
-	}
-	...
-}
+Test case 1: basic case (10 pts / 10 pts)
+Output number too large.
 
-Its stderr is for debugging and will be sent back to hook.
+Test case 2: name (n pts / N pts)
+Description.
+
+......
+
+<summary>
+grade_total = 30
+grade_datetime = YYYY-mm-dd HH:MM:SS +Z
+</summary>
+
+The <summary> node contains machine-readable info. The parameter grade_total, setting the total score
+for this submission, is required. The text outside of <summary> node is ignored by gitlab-ag, but will
+be sent to the student to read.
+
+Its stderr is for debugging and will be sent back to hook. However students will not see its content.
 
 Items in result_queue are dictionaries with keys 
 
@@ -75,7 +77,7 @@ docker_enabled = True
 docker_image_name = 'xybu/c_dev:jan_15'
 
 num_of_graders = 2
-main_sleep_time = 10 # in seconds
+main_sleep_time = 5 # in seconds
 grader_timeout = 1800 # in seconds
 
 script_path = os.path.dirname(os.path.realpath(__file__))
@@ -150,6 +152,7 @@ class GraderThread(threading.Thread):
 			
 			try:
 				shutil.rmtree(task['temp_path'], ignore_errors=True)
+				os.rmdir(task['temp_path'])
 			except:
 				pass
 			
@@ -172,7 +175,8 @@ class ReporterThread(threading.Thread):
 				response = cli.getresponse()
 				if response.status < 200 or response.status > 300:
 					raise Exception('HTTP' + str(response.status) + ' ' + response.reason)
-			except:
+			except Exception as e:
+				logger.info(str(e))
 				result_queue.put(item)
 				result_semaphore.release()
 	
@@ -211,13 +215,14 @@ def main():
 	task_queue = queue.Queue()
 	result_queue = queue.Queue()
 	
+	os.chdir(event_root_dir)
+	
 	ReporterThread().start()
 	for i in range(num_of_graders):
 		GraderThread('grader-' + str(i)).start()
 	
-	os.chdir(event_root_dir)
-	
 	while True:
+		logger.debug('start scanning dir.')
 		task_files = os.listdir()
 		for filename in task_files:
 			logger.info('processing file "' + filename + '"')
@@ -238,13 +243,15 @@ def main():
 				logger.warning(str(e))
 				try:
 					os.rename(filename, '../fails/' + filename)
-				except:
+					pass
+				except Exception as e:
+					logger.warning(str(e))
 					pass
 			
-					
 		time.sleep(main_sleep_time)
 
-Daemonize(app="ga-command_queue", pid=pid_file, action=main, keep_fds = daemon_keep_fds).start()
+# Daemonize(app="ga-command_queue", pid=pid_file, action=main, keep_fds = daemon_keep_fds).start()
+main()
 
 logger.info('grader queue stopped.')
 

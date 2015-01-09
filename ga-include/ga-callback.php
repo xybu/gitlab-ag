@@ -39,6 +39,7 @@ class GitLab_CallbackHook extends Base{
 			if ($this->response['result'] == 'needs_grading') {
 				// check if there is "*-test" repository under root user's namespace
 				$project_name = explode(':', $this->delegate_record['data']['repository']['url'])[1];
+				$project_name = substr($project_name, 0, strlen($project_name) - 4);
 				
 				if (strpos($project_name, GITLAB_ADMIN_USER . '/') !== 0 && is_dir(APP_ARCHIVE_PATH . '/' . GITLAB_ADMIN_USER . '/' . $this->delegate_record['data']['repository']['name'] . '-test')) {
 					$delegate_key = $this->GetRandStr(32);
