@@ -1,0 +1,9 @@
+<?php
+
+$content = 'Hello ' . $user_info['name'] . ',' . PHP_EOL . PHP_EOL . 
+		   'Your push ' . substr($push_info['after'], 0, 9) . ' to ' . $push_info['repository']['name'] . ' has been graded.' . PHP_EOL . 
+		   'The result is as follows:' . PHP_EOL . PHP_EOL .
+		   $grade_data . PHP_EOL . PHP_EOL .
+		   'However, please note that this result may or may not be your final grade for the corresponding assignment.' . 
+		   PHP_EOL . PHP_EOL . 
+		   APP_FROM_EMAIL_NAME;

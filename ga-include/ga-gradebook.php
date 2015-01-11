@@ -14,15 +14,14 @@ class GradeBook {
 			'database_file' => dirname(__FILE__) . '/../ga-data/' . self::DATABASE_NAME
 		]);
 		
-		$this->db->query('CREATE TABLE IF NOT EXISTS grades (project_id INT PRIMARY KEY, project_name TEXT, username TEXT, grade INT, grade_data TEXT, grade_log TEXT, date_created TEXT);');
+		$this->db->query('CREATE TABLE IF NOT EXISTS grades (project_id INT PRIMARY KEY, project_name TEXT, user_id INT, username TEXT, grade INT, grade_data TEXT, grade_log TEXT, date_created TEXT);');
 	}
 	
-	function AddNewRecord($project_id, $project_name, $grade, $grade_data = '', $grade_log = '') {
-		$username = '';
-		if (strpos('/', $project_name) !== false) $username = explode('/', $project_name, 2)[0];
+	function AddNewRecord($project_id, $project_name, $user_id, $username, $grade, $grade_data = '', $grade_log = '') {
 		$data = [
 			'project_id' => $project_id,
 			'project_name' => $project_name,
+			'user_id' => $user_id,
 			'username' => $username,
 			'grade' => $grade,
 			'grade_data' => '',

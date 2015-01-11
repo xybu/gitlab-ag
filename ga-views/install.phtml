@@ -44,6 +44,20 @@
 				</div>
 			</div>
 			<div class="form-group">
+				<label for="inputAppNoReplyEmail" class="col-sm-2 control-label">App system email</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="inputAppNoReplyEmail" name="APP_FROM_EMAIL" required="required" value="cs240-noreply@cs.purdue.edu">
+					<span class="help-block">gitlab-ag uses this email address to send out notifications to students.</span>
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="inputAppNoReplyEmailName" class="col-sm-2 control-label">App system email name</label>
+				<div class="col-sm-10">
+					<input type="text" class="form-control" id="inputAppNoReplyEmailName" name="APP_FROM_EMAIL_NAME" required="required" value="CS240 Admin">
+					<span class="help-block">The friendly, human-readable name for App system email.</span>
+				</div>
+			</div>
+			<div class="form-group">
 				<label for="inputAppArchivePath" class="col-sm-2 control-label">App archive path</label>
 				<div class="col-sm-10">
 					<input type="text" class="form-control" id="inputAppArchivePath" name="APP_ARCHIVE_PATH" required="required" placeholder="<?php echo getcwd() . '/ga-data/archive' ?>">
