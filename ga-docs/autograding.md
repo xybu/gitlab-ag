@@ -35,7 +35,7 @@ The file called `test_all` can be written in any language as long as it is _exec
 
 The `STDOUT` must print something like
 
-```bash
+```html
 whatever_you_want_to_tell_students
 
 <summary>
@@ -55,7 +55,7 @@ Its `STDERR` can contain debug text for this grading session, which will
 also be sent back to gitlab-ag to archive.
 
 The script `test_all` will run under the the same user as grader_queue daemon, 
-which is likely to be the worker of your web server UNLESS you correctly 
+which is likely to be the worker of your web server, UNLESS you correctly 
 install and enable Docker. Thus, if Docker is not enabled, then this script 
 MUST do whatever it needs to secure the system. For example, change `euid` to
 an underprivileged user, run the testee program in a container / jail / VM, and
@@ -68,17 +68,17 @@ changes.
 There are several parameters that you may want to change in 
 `ga-hook/delegates/ga-grader_queue.py`:
 
- * `docker_enabled`: set True to enable Docker, or False to disable it.
+ * `docker_enabled`: set `True` to enable Docker, or `False` to disable it.
  * `docker_image_name`: the name of Docker image to use for virtualized environment.
- * `num_of_graders`: the max number of grading sessions running concurrently.
- * `main_sleep_time`: main thread will be put to sleep for this specified seconds if 
+ * `num_of_graders`: the max _number_ of grading sessions running concurrently.
+ * `main_sleep_time`: main thread will be put to sleep for this specified _seconds_ if 
  	no task in the queue.
- * `grader_timeout`: the max number of seconds a grading session can last
- * `max_reporter_retry`: the max number of attempts to report grading result to gitlab-ag
+ * `grader_timeout`: the max number of _seconds_ a grading session can last
+ * `max_reporter_retry`: the max _number_ of attempts to report grading result to gitlab-ag
  	if HTTP error is encountered.
 
 Besides, in function `VirtualizedCmd()`, you can change the max amount of memory
 (default: `256m` for `256 MiB`), networking method (default: `none` for no network), 
 slave user (default: `slave`, a underprivileged user in default Docker image `xybu/cdev:v1`),
-etc., of Docker environment. Refer to `[docker run](https://docs.docker.com/reference/run/)` 
+etc., of Docker environment. Refer to [`docker run`](https://docs.docker.com/reference/run/)
 for more details.
