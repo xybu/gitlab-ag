@@ -57,7 +57,7 @@ sudo docker start -a -i $CONTAINER_ID
 
 # The following commands run inside docker container
 apt-get update && apt-get upgrade
-apt-get install -y build-essential cmake automake checkinstall gcc gdb software-properties-common binutils bison m4 cproto python3.4 python2.7 libcurl3 python3-pip
+apt-get install -y build-essential cmake automake checkinstall gcc gdb software-properties-common binutils bison m4 cproto python3.4 python2.7 libcurl3 python3-pip python3-pexpect expect-dev empty-expect
 apt-get autoclean
 
 # create a user called "slave" to avoid default root permission
