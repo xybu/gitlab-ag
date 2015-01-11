@@ -62,6 +62,7 @@ Items in result_queue are dictionaries with keys
 
 import os
 import sys
+import stat
 import time
 import json
 import shutil
@@ -154,7 +155,7 @@ class GraderThread(threading.Thread):
 					raise Exception('Executable "test_all" was not found.')
 				
 				if docker_enabled:
-					cmd = VirtualizedCmd('/ag/test_all', mount=[task['temp_path'] + ':/ag'], cwd='/ag')
+					cmd = VirtualizedCmd(['/ag/test_all'], mount=[task['temp_path'] + ':/ag'], cwd='/ag')
 				else:
 					cmd = [task['temp_path'] + '/test_all']
 				
@@ -169,7 +170,7 @@ class GraderThread(threading.Thread):
 				grade_result['grade_log'] = serr
 			except Exception as e:
 				logger.warning(str(e))
-				grade_result['grade_data'] = "<summary>grade_total=0\n</summary>\n"
+				grade_result['grade_data'] = "An internal error occurred. \nPlease contact instructors for more detail, or retry later.\n<summary>grade_total=0\n</summary>\n"
 				grade_result['grade_log'] = str(e)
 			
 			result_queue.put(grade_result)
@@ -178,6 +179,7 @@ class GraderThread(threading.Thread):
 			try:
 				shutil.rmtree(task['temp_path'], ignore_errors=True)
 				os.rmdir(task['temp_path'])
+				pass
 			except:
 				pass
 
@@ -222,8 +224,12 @@ def main():
 	logger.info('grader queue started.')
 	
 	if os.path.isfile(queue_path): os.remove(queue_path)
-	if not os.path.exists(queue_path): os.makedirs(queue_path)
-	if not os.path.exists(queue_failed_path): os.makedirs(queue_failed_path)
+	if not os.path.exists(queue_path):
+		os.makedirs(queue_path)
+		os.chmod(queue_path, stat.S_IRWXU | stat.S_IRWXG)
+	if not os.path.exists(queue_failed_path): 
+		os.makedirs(queue_failed_path)
+		os.chmod(queue_failed_path, stat.S_IRWXU | stat.S_IRWXG)
 	
 	logger.debug('path checking completed.')
 
@@ -239,7 +245,11 @@ def main():
 		sys.exit(1)
 	
 	logger.info('input is correct.')
-
+	
+	if not os.path.exists(config['temp_path']):
+		os.makedirs(config['temp_path'])
+		os.chmod(config['temp_path'], stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
+	
 	worker_semaphore = threading.Semaphore(0)
 	result_semaphore = threading.Semaphore(0)
 	task_queue = queue.Queue()
@@ -260,8 +270,9 @@ def main():
 			try:
 				with open(filename, 'r') as f:
 					t = json.loads(f.read())
-					t_dir = config['temp_path'] + '/' + t['project_name'].replace('/', '_') + Now()
-					os.makedirs(t_dir)
+					t_dir = config['temp_path'] + '/' + t['project_name'].replace('/', '_') + '_' + Now()
+					os.mkdir(t_dir)
+					os.chmod(t_dir, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
 					for d in t['merge_dir']:
 						ret = subprocess.call('cp -R ' + d + '/* ' + t_dir + '/', shell=True)
 						if ret != 0: raise Exception('Failed on command "cp -R ' + d + ' ' + t_dir + '/"')
