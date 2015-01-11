@@ -18,6 +18,7 @@ delegates are written in Python3k.
 **Table of Contents**
 
  * [Installation](ga-docs/installation.md)
+ * [Docker integration](ga-docs/docker.md)
  * [Usage](ga-docs/usage.md)
  * [Auto-grading](ga-docs/autograding.md)
  * [Security concerns](ga-docs/security.md)

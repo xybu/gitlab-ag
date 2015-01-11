@@ -117,6 +117,7 @@ result_semaphore = None
 def VirtualizedCmd(cmd, mount = [], memory = '256m', net = 'none', runas = 'slave', cwd = None):
 	'''
 	runas should be a username inside the docker image.
+	cmd should be a path inside the docker file system.
 	'''
 	docker_args = ['docker', 'run', '-t', '--cpu-shares', '25', '--memory', memory, '--user', runas, '--net', net]
 	for x in mount: docker_args += ['--volume', x]
