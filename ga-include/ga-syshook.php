@@ -39,9 +39,7 @@ class GitLab_SystemHook extends Base {
 		switch ($this->data['event_name']) {
 			case 'user_add_to_team':
 				// forking a project does not trigger 'project_create' event.
-				// Should check if this event refers to a project that is not recorded.
-				// Thus this is treated the same way as 'project_create'.
-			case 'project_create':
+				// but both forking and project creation trigger 'user_add_to_team'.
 				$this->AddWebHookToProject($this->data);
 				$this->logger->addLog($this->data['event_name'], $this->raw);
 				break;
@@ -52,6 +50,7 @@ class GitLab_SystemHook extends Base {
 			case 'user_destroy':
 			case 'key_create':
 			case 'key_destroy':
+			case 'project_create':
 				$this->logger->addLog($this->data['event_name'], $this->raw);
 				break;
 			default:
@@ -61,10 +60,10 @@ class GitLab_SystemHook extends Base {
 	}
 	
 	function AddWebHookToProject($event_args) {
-		$cli = new HttpClient(GITLAB_URL . '/api/v3/projects/' . $event_args['project_id'] . '/hooks?private_token=' . GITLAB_PRIVATE_TOKEN);
 		$db = new Database();
 		if (!$db->ProjectHasWebHook($event_args['project_id'])) {
 			try {
+				$cli = new HttpClient(GITLAB_URL . '/api/v3/projects/' . $event_args['project_id'] . '/hooks?private_token=' . GITLAB_PRIVATE_TOKEN);
 				$rnd_hook_key = $this->GetRandStr(32);
 				$response = $cli->Post(['url' => APP_HOOK_URL . '/webhook/' . $rnd_hook_key ]);
 				//file_put_contents(getcwd() . '/../ga-data/response.json', json_encode(get_object_vars($response)));
