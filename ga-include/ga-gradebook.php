@@ -18,6 +18,8 @@ class GradeBook {
 	}
 	
 	function AddNewRecord($project_id, $project_name, $grade, $grade_data = '', $grade_log = '') {
+		$username = '';
+		if (strpos('/', $project_name) !== false) $username = explode('/', $project_name, 2)[0];
 		$data = [
 			'project_id' => $project_id,
 			'project_name' => $project_name,

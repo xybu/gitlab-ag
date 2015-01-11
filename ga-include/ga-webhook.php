@@ -10,13 +10,15 @@ require_once 'ga-db.php';
 
 class GitLab_WebHook extends Base {
 	
+	protected $PUSH_TO_DIR;
+	
 	protected $db;
 	protected $data;
 	
 	function __construct() {
-		
+		$this->PUSH_TO_DIR = APP_ABS_PATH . '/ga-data/pushes';
 		$raw = @file_get_contents('php://input');
-		file_put_contents(APP_ABS_PATH . '/ga-hook/logs/webhook.log', $raw);
+		file_put_contents(APP_ABS_PATH . '/ga-data/last_webhook.log', $raw);
 		
 		$this->data = json_decode($raw, true);
 		
@@ -62,9 +64,9 @@ class GitLab_WebHook extends Base {
 			];
 			$file_name = $this->data['project_id'] . '_' . $delegate_key . '.json';
 			
-			if (!is_dir(getcwd() . '/pushes')) mkdir(getcwd() . '/pushes', 0770);
+			if (!is_dir($this->PUSH_TO_DIR)) mkdir($this->PUSH_TO_DIR, 0770);
 			
-			file_put_contents(getcwd() . '/pushes/' . $file_name, json_encode($file_data));
+			file_put_contents($this->PUSH_TO_DIR . '/' . $file_name, json_encode($file_data));
 			
 			exec(getcwd() . '/delegates/ga-get_repo.py "' . $file_name . '" > /dev/null &');
 			

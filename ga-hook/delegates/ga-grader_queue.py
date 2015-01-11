@@ -77,10 +77,12 @@ docker_enabled = True
 docker_image_name = 'xybu/c_dev:jan_15'
 
 num_of_graders = 2
-main_sleep_time = 5 # in seconds
+main_sleep_time = 10  # in seconds
 grader_timeout = 1800 # in seconds
 
 script_path = os.path.dirname(os.path.realpath(__file__))
+queue_path = script_path + '/../../ga-data/queue'
+queue_failed_path = script_path + '/../../ga-data/queue_failed'
 cfg_file = script_path + '/../../ga-data/ga-grader_queue.cfg'
 pid_file = script_path + '/../../ga-data/ga-grader_queue.pid'
 log_file = script_path + '/../../ga-data/ga-grader_queue.log'
@@ -99,8 +101,8 @@ result_queue = None
 worker_semaphore = None
 result_semaphore = None
 
-def VirtualizedCmd(cmd, stdin = None, mount = [], memory = '256m', net = 'none', runas = 'slave', cwd = None):
-	docker_args = ['docker', 'run', '-t', '-i', '--attach', 'STDIN,STDOUT,STDERR', '--cpu-shares', '25', '--memory', memory, '--user', runas, '--net', net]
+def VirtualizedCmd(cmd, mount = [], memory = '256m', net = 'none', runas = 'slave', cwd = None):
+	docker_args = ['docker', 'run', '-t', '--cpu-shares', '25', '--memory', memory, '--user', runas, '--net', net]
 	for x in mount: docker_args += ['--volume', x]
 	if cwd != None: docker_args += ['-w', cwd]
 	docker_args += [docker_image_name] + cmd
@@ -130,19 +132,26 @@ class GraderThread(threading.Thread):
 				'grade_data': None,
 				'grade_log': None
 			}
+			logger.debug(task)
 			try:
 				if not os.path.isfile(task['temp_path'] + '/test_all'):
+					logger.critical('grader file "' + task['temp_path'] + '/test_all" not found.')
 					raise Exception('Executable "test_all" was not found.')
 				cmd = [task['temp_path'] + '/test_all']
 				if docker_enabled:
 					cmd = VirtualizedCmd(cmd, mount=[task['temp_path'] + ':/home'], cwd='/home')
+				logger.debug(cmd)
 				subp = subprocess.Popen(cmd, cwd=task['temp_path'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 				sout, serr = subp.communicate(None, timeout = grader_timeout)
+				sout = sout.decode('UTF-8')
+				serr = serr.decode('UTF-8')
+				if '<summary>' not in sout:
+					sout = sout + "\n<summary>grade_total=0\n</summary>\n"
 				grade_result['grade_data'] = sout
 				grade_result['grade_log'] = serr
 			except Exception as e:
 				logger.warning(str(e))
-				grade_result['grade_data'] = "<summary>grade_total=0\n</summary>"
+				grade_result['grade_data'] = "<summary>grade_total=0\n</summary>\n"
 				grade_result['grade_log'] = str(e)
 			
 			result_queue.put(grade_result)
@@ -172,11 +181,12 @@ class ReporterThread(threading.Thread):
 				cli.request('POST', '/callback/' + item['delegate_key'], json.dumps(item))
 				response = cli.getresponse()
 				if response.status < 200 or response.status > 300:
+					# if there is network problem, try again later
+					result_queue.put(item)
+					result_semaphore.release()
 					raise Exception('HTTP' + str(response.status) + ' ' + response.reason)
 			except Exception as e:
-				logger.info(str(e))
-				result_queue.put(item)
-				result_semaphore.release()
+				logger.critical(str(e))
 	
 def main():
 	
@@ -188,10 +198,9 @@ def main():
 	
 	logger.info('grader queue started.')
 	
-	event_root_dir = script_path + '/../queue'
-	if os.path.isfile(event_root_dir): os.remove(event_root_dir)
-	if not os.path.exists(event_root_dir): os.makedirs(event_root_dir)
-	if not os.path.exists(script_path + '/../fails'): os.makedirs(script_path + '/../fails')
+	if os.path.isfile(queue_path): os.remove(queue_path)
+	if not os.path.exists(queue_path): os.makedirs(queue_path)
+	if not os.path.exists(queue_failed_path): os.makedirs(queue_failed_path)
 	
 	logger.debug('path checking completed.')
 
@@ -212,15 +221,16 @@ def main():
 	result_semaphore = threading.Semaphore(0)
 	task_queue = queue.Queue()
 	result_queue = queue.Queue()
-	
-	os.chdir(event_root_dir)
+	# sys.stdout = open(script_path + '/../../ga-data/ga-grader_queue.out', 'w')
+	# sys.stderr = open(script_path + '/../../ga-data/ga-grader_queue.err', 'w')
+	os.chdir(queue_path)
 	
 	ReporterThread().start()
 	for i in range(num_of_graders):
 		GraderThread('grader-' + str(i)).start()
 	
 	while True:
-		logger.debug('start scanning dir.')
+		# logger.debug('start scanning dir.')
 		task_files = os.listdir()
 		for filename in task_files:
 			logger.info('processing file "' + filename + '"')
@@ -230,26 +240,24 @@ def main():
 					t_dir = config['temp_path'] + '/' + t['project_name'].replace('/', '_') + Now()
 					os.makedirs(t_dir)
 					for d in t['merge_dir']:
-						ret = subprocess.call('cp -R ' + d + ' ' + t_dir + '/', shell=True)
+						ret = subprocess.call('cp -R ' + d + '/* ' + t_dir + '/', shell=True)
 						if ret != 0: raise Exception('Failed on command "cp -R ' + d + ' ' + t_dir + '/"')
-					subprocess.call('chmod -R +rwx ' + t_dir + '/*', shell=True)
+					subprocess.call('chmod -R 777 ' + t_dir + '/*', shell=True)
 					t['temp_path'] = t_dir
 					task_queue.put(t)
 					worker_semaphore.release()
-				os.remove(filename)
+				os.remove(queue_path + '/' + filename)
 			except Exception as e:
 				logger.warning(str(e))
 				try:
-					os.rename(filename, '../fails/' + filename)
-					pass
+					os.rename(filename,  queue_failed_path + '/' + filename)
 				except Exception as e:
 					logger.warning(str(e))
-					pass
-			
+		
 		time.sleep(main_sleep_time)
 
-# Daemonize(app="ga-command_queue", pid=pid_file, action=main, keep_fds = daemon_keep_fds).start()
-main()
+Daemonize(app="ga-command_queue", pid=pid_file, action=main, keep_fds = daemon_keep_fds).start()
+# main()
 
 logger.info('grader queue stopped.')
 

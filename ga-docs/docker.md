@@ -12,6 +12,12 @@ To install Docker on Ubuntu 14.04,
 ```bash
 curl -sSL https://get.docker.com/ubuntu/ | sudo sh
 ```
+To enable swap accounting feature on your Linux kernel, you may need to edit 
+`/etc/default/grub` file and set 
+
+```
+GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"
+```
 
 Setup
 =====
@@ -23,9 +29,9 @@ Setup
 # keep password empty so it cannot be logged in via SSH
 sudo useradd -m slave
 
-# add current user and "slave" to docker group
-sudo gpasswd -a slave docker
+# add current user and www-data to docker group
 sudo gpasswd -a ${USER} docker
+sudo gpasswd -a www-data docker
 
 # restart docker service
 sudo service docker restart

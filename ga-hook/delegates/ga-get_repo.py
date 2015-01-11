@@ -64,6 +64,8 @@ import http.client
 import datetime
 
 script_path = os.path.dirname(os.path.realpath(__file__))
+log_path = script_path + '/../../ga-data/logs'
+push_path = script_path + '/../../ga-data/pushes'
 task_json = None
 task_json_raw = ''
 archive_raw = ''
@@ -75,21 +77,21 @@ def Now():
 	return datetime.datetime.now(datetime.timezone.utc)
 
 def LogException(src, ex, info = None):
-	if not os.path.isdir(script_path + '/../logs'):
-		if os.path.exists(script_path + '/../logs'):
+	if not os.path.isdir(log_path):
+		if os.path.exists(log_path):
 			try:
-				os.remove(script_path + '/../logs')
+				os.remove(log_path)
 			except:
 				pass
 		try:
-			os.mkdir(script_path + '/../logs')
+			os.mkdir(log_path)
 		except:
 			pass
-	with open(script_path + '/../logs/' + Now().strftime('%Y%m%d-%H%M%S.%f') + '_' + src + '.log', 'w') as f:
+	with open(log_path + '/' + Now().strftime('%Y%m%d-%H%M%S.%f') + '_' + src + '.log', 'w') as f:
 		f.write(str(ex) + '\n\n')
 		if info != None: f.write('Reference Info:\n' + str(info))
 
-f = open(script_path + '/../pushes/' + sys.argv[1], 'r')
+f = open(push_path + '/' + sys.argv[1], 'r')
 task_json_raw = f.read()
 f.close()
 
@@ -131,5 +133,5 @@ response = cli.getresponse()
 if response.status < 200 or response.status > 300:
 	LogException('get_repo', response.read())
 else:
-	os.remove(script_path + '/../pushes/' + sys.argv[1])
+	os.remove(push_path + '/' + sys.argv[1])
 
