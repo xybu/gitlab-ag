@@ -80,13 +80,13 @@ docker_enabled = True
 docker_image_name = 'xybu/cdev:v1'
 
 # The number of grader threads
-num_of_graders = 2
+num_of_graders = 4
 
 # Time of sleep between main thread scans file queue
-main_sleep_time = 10  # in seconds
+main_sleep_time = 600  # in seconds
 
 # Force the grader to proceed if test_all does not finish after this time
-grader_timeout = 1800 # in seconds
+grader_timeout = 900 # in seconds
 
 # Reporter will try to report result this max number of times facing HTTP error
 max_reporter_retry = 10
