@@ -73,12 +73,23 @@ import queue
 import http.client
 from daemonize import Daemonize
 
+# Set to False to disable Docker integration
 docker_enabled = True
-docker_image_name = 'xybu/c_dev:jan_15'
 
+# The Docker image name for virtualization
+docker_image_name = 'xybu/cdev:v1'
+
+# The number of grader threads
 num_of_graders = 2
+
+# Time of sleep between main thread scans file queue
 main_sleep_time = 10  # in seconds
+
+# Force the grader to proceed if test_all does not finish after this time
 grader_timeout = 1800 # in seconds
+
+# Reporter will try to report result this max number of times facing HTTP error
+max_reporter_retry = 10
 
 script_path = os.path.dirname(os.path.realpath(__file__))
 queue_path = script_path + '/../../ga-data/queue'
@@ -87,6 +98,7 @@ cfg_file = script_path + '/../../ga-data/ga-grader_queue.cfg'
 pid_file = script_path + '/../../ga-data/ga-grader_queue.pid'
 log_file = script_path + '/../../ga-data/ga-grader_queue.log'
 
+logging.basicConfig(format='[%(asctime)-15s] %(threadName)s: %(message)s')
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
 logger.propagate = False
@@ -102,6 +114,9 @@ worker_semaphore = None
 result_semaphore = None
 
 def VirtualizedCmd(cmd, mount = [], memory = '256m', net = 'none', runas = 'slave', cwd = None):
+	'''
+	runas should be a username inside the docker image.
+	'''
 	docker_args = ['docker', 'run', '-t', '--cpu-shares', '25', '--memory', memory, '--user', runas, '--net', net]
 	for x in mount: docker_args += ['--volume', x]
 	if cwd != None: docker_args += ['-w', cwd]
@@ -110,7 +125,7 @@ def VirtualizedCmd(cmd, mount = [], memory = '256m', net = 'none', runas = 'slav
 
 def Now():
 	return datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%d-%H%M%S.%f')
-
+	
 class GraderThread(threading.Thread):
 	
 	def __init__(self, name):
@@ -182,9 +197,14 @@ class ReporterThread(threading.Thread):
 				response = cli.getresponse()
 				if response.status < 200 or response.status > 300:
 					# if there is network problem, try again later
-					result_queue.put(item)
-					result_semaphore.release()
-					raise Exception('HTTP' + str(response.status) + ' ' + response.reason)
+					if 'attempt_count' not in item:
+						item['attempt_count'] = 1
+					else:
+						item['attempt_count'] += 1
+					if item['attempt_count'] < max_reporter_retry:
+						result_queue.put(item)
+						result_semaphore.release()
+					raise Exception('HTTP' + str(response.status) + ' ' + response.reason + '\n' + json.dumps(item))
 			except Exception as e:
 				logger.critical(str(e))
 	
