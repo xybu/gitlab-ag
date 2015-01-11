@@ -99,6 +99,20 @@ to GitLab. And then click `Install` button to its right and the config file
 `ga-data/ga-config.php` will be generated. To rerun the installer, you need to delete this 
 file and visit the gitlab-ag url.
 
+(6) Setup crontab
+
+```bash
+sudo crontab -e
+
+# Add the following lines to the end
+# For GitLab 7.6.2 and below, restart GitLab at 4:30am every day to deal with zombie processes
+30 4 * * * gitlab-ctl restart > /var/log/gitlab-restart.log
+# Because ga-grader_queue does not start with system, delete the pidfile if it exists
+@reboot rm -f /PATH_TO_GITLAB/ga-data/ga-grader_queue.pid
+
+Now update crond service
+sudo update-rc.d cron defaults
+```
 
 ## Setup GitLab
 

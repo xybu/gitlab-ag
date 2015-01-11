@@ -22,13 +22,9 @@ GRUB_CMDLINE_LINUX="cgroup_enable=memory swapaccount=1"
 Setup
 =====
 
-(1) Create a non-root user to avoid sudo
+(1) Grant docker access permission to non-root users to avoid sudo
 
 ```bash
-# create a user called "slave"
-# keep password empty so it cannot be logged in via SSH
-sudo useradd -m slave
-
 # add current user and www-data to docker group
 sudo gpasswd -a ${USER} docker
 sudo gpasswd -a www-data docker
@@ -60,20 +56,26 @@ CONTAINER_ID=`sudo docker create -t -i ubuntu bash`
 sudo docker start -a -i $CONTAINER_ID
 
 # The following commands run inside docker container
-apt-get update
-apt-get install -y build-essential cmake automake checkinstall gcc gdb software-properties-common
+apt-get update && apt-get upgrade
+apt-get install -y build-essential cmake automake checkinstall gcc gdb software-properties-common binutils bison m4 cproto python3.4 python2.7 libcurl3 python3-pip
 apt-get autoclean
+
+# create a user called "slave" to avoid default root permission
+sudo useradd -m slave
 # (END)
 
 # Do the following in a bash process OUTSIDE the docker
 sudo docker commit $CONTAINER_ID docker_username/image_name:tag
 sudo docker push docker_username/image_name
 # Use your own credential in the above two commands.
-# For C development, I have created docker image "xybu/c_dev:jan_15"
+# For C development, I have created docker image "xybu/cdev:v1"
 
 ```
 
 Integrate with gitlab-ag
 ========================
 
-
+By default, `ga-hook/delegates/ga-grader_queue.py` enables Docker integration and assumes
+the image `xybu/cdev:v1` which is configured as step 2 above specifies. If you want to 
+disable Docker (not recommended) or use another image or change virtualization solution 
+you will need to modify `ga-grader_queue.py` on your own.
