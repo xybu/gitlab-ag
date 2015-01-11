@@ -152,9 +152,12 @@ class GraderThread(threading.Thread):
 				if not os.path.isfile(task['temp_path'] + '/test_all'):
 					logger.critical('grader file "' + task['temp_path'] + '/test_all" not found.')
 					raise Exception('Executable "test_all" was not found.')
-				cmd = [task['temp_path'] + '/test_all']
+				
 				if docker_enabled:
-					cmd = VirtualizedCmd(cmd, mount=[task['temp_path'] + ':/home'], cwd='/home')
+					cmd = VirtualizedCmd('/ag/test_all', mount=[task['temp_path'] + ':/ag'], cwd='/ag')
+				else:
+					cmd = [task['temp_path'] + '/test_all']
+				
 				logger.debug(cmd)
 				subp = subprocess.Popen(cmd, cwd=task['temp_path'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 				sout, serr = subp.communicate(None, timeout = grader_timeout)
