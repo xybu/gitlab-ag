@@ -17,3 +17,13 @@ There are two additional options, one for allowing users to create their own gro
 
 When you hit "Start" button, a progress bar will show up to indicate progress. If there are any errors in the middle, an error message will show up below the progress bar.
 
+## Create New Projects
+
+In the navbar menu, choose "Repositories" - "Create Repositories". Type the username pattern and click "List Matched Users" and you will see a table of users under whose namespace the desired project will be created.
+
+Then fill in the basic information of the project and click "Create Projects".
+
+`Import URL` (optional) is a URL to an existing Git repository. If it is given, the created project will be clone from there (i.e., having the same files and commit history). This is good for creating a base project and distributing it to all students.
+Make sure it can be cloned with the URL. If username and password are needed, include them in the URL. For example, `http://user:pass@host:post/user/lab1-src.git`.
+
+After clicking "Create Projects`, a progress bar will show up indicating the progress. If there is any error occurred during the process, an alert will show below the progress bar. If a project is created successfully for the user, his / her row in the table of matched users will be deleted. (So if everything goes fine, the table will become empty and the progress bar will go to 100%.)

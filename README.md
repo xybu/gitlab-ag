@@ -4,7 +4,9 @@ Extend [GitLab](http://gitlab.com) for education use:
 
  * **Import / delete users in batch**: import students from CSV when a new 
  semester starts, and delete all users after semester ends.
- * Create new projects in batch (planned)
+ * **Create / clone new projects in batch**: create new projects of same 
+ parameters for (any set of) users, optionally cloning from an existing 
+ git repository.
  * **Backup at push**: so a designated directory will always have the latest 
  copy of monitored projects in GitLab.
  * **System event logging and notification (planned)**: notify instructors 
