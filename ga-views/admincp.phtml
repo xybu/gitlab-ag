@@ -118,7 +118,7 @@
 		</section>
 		<section class="container-fluid tab-pane" role="tabpanel" id="new-repo">
 			<div class="page-header"><h2>New Repositories</h2></div>
-			<form class="form-horizontal">
+			<form class="form-horizontal" id="new-repo-form">
 				<div class="form-group">
 					<label for="inputProjectOwnerUsernamePattern" class="col-sm-2 control-label">Username Pattern</label>
 					<div class="col-sm-10">
@@ -134,6 +134,13 @@
 					</div>
 				</div>
 				<div class="form-group">
+					<label for="inputImportUrl" class="col-sm-2 control-label">Import URL</label>
+					<div class="col-sm-10">
+						<input type="text" class="form-control" id="inputImportUrl" placeholder="http://username:password@gitlab.com/company/project.git">
+						<span class="help-block">Import content from an existing Git repository. On GitLab an import will time out after 4 minutes.</span>
+					</div>
+				</div>
+				<div class="form-group">
 					<label for="inputNewProjectDescription" class="col-sm-2 control-label">Project Description</label>
 					<div class="col-sm-10">
 						<textarea class="form-control" id="inputNewProjectDescription" placeholder="Short description for the project, or leave blank."></textarea>
@@ -141,13 +148,22 @@
 					</div>
 				</div>
 				<div class="form-group">
+					<label for="inputVisibilityLevel" class="col-sm-2 control-label">Visibility Level</label>
+					<div class="col-sm-10">
+						<label class="radio-inline">
+							<input type="radio" name="inputVisibilityLevel" id="inputVisibilityLevel1" value="0" checked="true"> Private
+						</label>
+						<label class="radio-inline">
+							<input type="radio" name="inputVisibilityLevel" id="inputVisibilityLevel2" value="10"> Internal
+						</label>
+						<label class="radio-inline">
+							<input type="radio" name="inputVisibilityLevel" id="inputVisibilityLevel3" value="20"> Public
+						</label>
+					</div>
+				</div>
+				<div class="form-group">
 					<label class="col-sm-2 control-label">Options</label>
 					<div class="col-sm-10">
-						<div class="checkbox">
-							<label>
-								<input type="checkbox" id="OptNewProjectAddHook" value="true" checked="true"> Let gitlab-ag hook with the projects to create.
-							</label>
-						</div>
 						<div class="checkbox">
 							<label>
 								<input type="checkbox" id="OptNewProjectEnableIssueTracker" value="true" checked="true"> Enable issue tracker for the projects to create.
@@ -168,21 +184,17 @@
 								<input type="checkbox" id="OptNewProjectEnableSnippets" value="true"> Enable snippets for the projects to create.
 							</label>
 						</div>
-						<div class="checkbox">
-							<label>
-								<input type="checkbox" id="OptNewProjectIsPublic" value="true"> Set the project visibility to <em>public</em>.
-							</label>
-						</div>
 					</div>
 				</div>
 				<div class="form-group">
 					<div class="col-sm-offset-2 col-sm-10">
-						<button id="BtnListNewProjectMatchedUsers" class="btn btn-default">List matched Users</button>
-						<button id="BtnCreateNewProjects" class="btn btn-warning hide">Create Projects</button>
+						<button type="button" id="BtnListNewProjectMatchedUsers" class="btn btn-default">List matched Users</button>
+						<button type="submit" id="BtnCreateNewProjects" class="btn btn-warning hide">Create Projects</button>
 					</div>
 				</div>
 			</form>
 			<div id="CreateProjectResult"></div>
+			<div id="CreateProjectUsernameMatchingResult"></div>
 		</section>
 		<section class="container-fluid tab-pane" role="tabpanel" id="edit-repo">
 			<div class="page-header"><h2>Edit Repositories</h2></div>

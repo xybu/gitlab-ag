@@ -146,23 +146,12 @@ $(document).ready(function() {
 	});
 	
 	$('#BtnListMatchedUsers').click(function(e) {
-		e.preventDefault();
-		$('#DeleteUserResult').html('<div class="table-responsive"><table class="table table-bordered table-hover"><thead><tr><td>ID</td><td>Username</td><td>Name</td><td>Email</td><td>is_admin</td></tr></thead><tbody id="MatchUserTableBody"></tbody></table></div>');
-		var user_list = store.get('GITLAB_AG_USER_LIST');
-		var test_regex = wildcard_to_regex($('#inputUsernamePattern').val());
-		console.log(test_regex);
-		var root_username = $('#GitLabRootUsername').val();
 		var show_user = $('#OptShowNormalUsers').is(':checked');
 		var show_admin = $('#OptShowAdmin').is(':checked');
-		enable_heartbeat = true;
-		user_list.forEach(function(item, i, p) {
-			if (test_regex.test(item.username) && item.username != root_username &&
-			    (item.is_admin && show_admin || !(item.is_admin) && show_user)) {
-				$('#MatchUserTableBody').append('<tr id="UserRow' + item.id + '"><td id="row_id">' + item.id + '</td><td id="row_username">' + item.username + '</td><td>' + item.name + '</td><td>' + item.email + '</td><td>' + item.is_admin + '</td></tr>');
-			}
+		get_matched_user_table(e, $('#DeleteUserResult'), $('#inputUsernamePattern').val(), function(item) {
+			return (item.is_admin && show_admin || !(item.is_admin) && show_user);
 		});
 		$('#BtnDeleteMatchedUsers').removeClass('hide');
-		enable_heartbeat = false;
 	});
 	
 	$('#BtnDeleteMatchedUsers').click(function(e) {
@@ -184,6 +173,54 @@ $(document).ready(function() {
 		$('#DeleteUserResult').append(new_success_div('Task complete.'));
 		$(this).addClass('hide');
 		enable_heartbeat = false;
+	});
+	
+	$('#new-repo-form').submit(function(e) {
+		e.preventDefault();
+		
+		var data = {
+			'name': $('#inputNewProjectName').val(),
+			'description': $('#inputNewProjectDescription').val(),
+			'import_url': $('#inputImportUrl').val(),
+			'issues_enabled': $('#OptNewProjectEnableIssueTracker').is(':checked'),
+			'merge_requests_enabled': $('#OptNewProjectEnableMergeRequests').is(':checked'),
+			'wiki_enabled': $('#OptNewProjectEnableWiki').is(':checked'),
+			'snippets_enabled': $('#OptNewProjectEnableSnippets').is(':checked'),
+			'visibility_level': $('input:radio[name=inputVisibilityLevel]:checked').val()
+		}
+		
+		var result_dom = $('#CreateProjectResult');
+		var progress_bar_dom = new_progress_bar('newProjectProgressBar');
+		var total_records = $('#MatchUserTableBody').children().length;
+		
+		result_dom.html(progress_bar_dom);
+		enable_heartbeat = true;
+		
+		$('#MatchUserTableBody').children().each(function(i, obj){
+			update_progress_bar_percentage(progress_bar_dom, Math.round(100 * i / total_records), '');
+			var user_id = $(obj).find('#row_id').text();
+			$.ajax({
+				async: false,
+				url: gitlab_url + '/projects/user/' + user_id + '?private_token=' + gitlab_token,
+				data: data,
+				type: 'POST'
+			}).done(function(data) {
+				$(obj).remove();
+			}).fail(function(xhr) {
+				$(obj).addClass('danger');
+				var username = $(obj).find('#row_username').text();
+				result_dom.append(new_danger_div('<code>' + username + '</code> failed: <code>' + xhr.responseText + '</code>'));
+			});
+		});
+		update_progress_bar_percentage(progress_bar_dom, 100, '');
+		progress_bar_dom.children().removeClass('active');
+		
+		enable_heartbeat = false;
+	});
+	
+	$('#BtnListNewProjectMatchedUsers').click(function(e) {
+		get_matched_user_table(e, $('#CreateProjectUsernameMatchingResult'), $('#inputProjectOwnerUsernamePattern').val(), function(item) {return true;});
+		$('#BtnCreateNewProjects').removeClass('hide');
 	});
 });
 
@@ -240,6 +277,24 @@ function new_success_div(content) {
 function get_alert_div(style, content, icon) {
 	return $('<div class="alert alert-' + style + '" role="alert">' + 
 				'<span class="glyphicon ' + icon + '" aria-hidden="true"></span> ' + content + '</div>');
+}
+
+function get_matched_user_table(event_arg, dom, pattern_str, extra_criteria_func) {
+	event_arg.preventDefault();
+	$('#MatchUserTableBody').remove();
+	dom.html('<div class="table-responsive"><table class="table table-bordered table-hover"><thead><tr><td>ID</td><td>Username</td><td>Name</td><td>Email</td><td>is_admin</td></tr></thead><tbody id="MatchUserTableBody"></tbody></table></div>');
+	var user_list = store.get('GITLAB_AG_USER_LIST');
+	var test_regex = wildcard_to_regex(pattern_str);
+	
+	var root_username = $('#GitLabRootUsername').val();
+	
+	enable_heartbeat = true;
+	user_list.forEach(function(item, i, p) {
+		if (test_regex.test(item.username) && item.username != root_username && extra_criteria_func(item)) {
+			$('#MatchUserTableBody').append('<tr id="UserRow' + item.id + '"><td id="row_id">' + item.id + '</td><td id="row_username">' + item.username + '</td><td>' + item.name + '</td><td>' + item.email + '</td><td>' + item.is_admin + '</td></tr>');
+		}
+	});
+	enable_heartbeat = false;
 }
 
 function wildcard_to_regex(str) {

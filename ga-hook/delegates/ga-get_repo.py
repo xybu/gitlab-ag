@@ -87,7 +87,7 @@ def LogException(src, ex, info = None):
 			os.mkdir(log_path)
 		except:
 			pass
-	with open(log_path + '/' + Now().strftime('%Y%m%d-%H%M%S.%f') + '_' + src + '.log', 'w') as f:
+	with open(log_path + '/get_repo_' + Now().strftime('%Y%m%d-%H%M%S.%f') + '_' + src + '.log', 'w') as f:
 		f.write(str(ex) + '\n\n')
 		if info != None: f.write('Reference Info:\n' + str(info))
 
