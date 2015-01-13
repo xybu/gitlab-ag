@@ -66,10 +66,8 @@ class GitLab_SystemHook extends Base {
 				$response = $cli->Post(['url' => APP_HOOK_URL . '/webhook/' . $rnd_hook_key ]);
 				if ($response->StatusCode < 200 || $response->StatusCode > 299)
 					throw new Exception('Cannot talk to GitLab API: HTTP ' . $response->StatusCode . ' ' . $response->StatusText . '.\n' . $response->Content);
+				$db->AddWebHookKey($event_args['project_id'], $rnd_hook_key);
 				
-				//$rnd_hook_key = $this->GetRandStr(32);
-				//$db->AddWebHookKey($event_args['project_id'], $rnd_hook_key);
-				//
 				//$handle = popen(APP_ABS_PATH . '/ga-hook/delegates/ga-post.py', 'w');
 				//$data = json_encode([
 				//	'http_url' => GITLAB_URL . '/api/v3/projects/' . $event_args['project_id'] . '/hooks?private_token=' . GITLAB_PRIVATE_TOKEN,
