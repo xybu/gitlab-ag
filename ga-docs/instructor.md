@@ -6,6 +6,15 @@ Xiangyu Bu
 For educational use, here is a guideline of what the instructor should 
 make clear to students about using GitLab.
 
+Project Creation
+================
+
+In GitLab, forking a project does not create a new project, and thus gitlab-ag
+cannot keep track of the forked project. You may want to use the "Create Repositories"
+feature of gitlab-ag to create a bunch of projects with same files (by specifying 
+"Import URL") for the students to use. Please refer to [Usage](usage.md) document for 
+more detail.
+
 Action Monitoring
 =================
 
