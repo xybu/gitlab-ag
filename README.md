@@ -28,4 +28,4 @@ delegates are written in Python3k.
 
 **License**
 
-gitlab-ag is licensed under GNU v2.
+gitlab-ag is licensed under GNU GPLv2.
